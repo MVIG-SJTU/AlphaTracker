@@ -153,52 +153,7 @@ os.system('ln -s {}/* {}/'.format(ln_image_dir, yolo_image_annot_root))
 
 
 print('\n\n*** training detector ***')
-
-if not os.path.exists(darknet_root+'/backup/'+exp_name):
-    os.makedirs(darknet_root+'backup/'+exp_name)
-if yolo_pretrain == '':
-    yolo_pretrain = 'darknet53.conv.74'
-
-# configuring mice.data
-try:
-    os.system('mkdir {}/cfg'.format(darknet_root))
-except Exception as e:
-    print(e)
-f_id = open(darknet_root + '/cfg/mice.data', 'w')
-f_id.write('classes = 1\n')
-f_id.write('train = %s \n' % (train_list_file))
-f_id.write('valid = %s \n' % (val_list_file))
-f_id.write('backup = backup/%s \n' % (exp_name))
-f_id.write('names = data/mice.names\n')
-f_id.close()
-
-# configuring yolov3-mice.cfg
-f_yolo_ori = open(darknet_root + '/cfg/yolov3-mice-ori.cfg', 'r+')
-yolo_setting = f_yolo_ori.readlines()
-f_yolo_ori.close()
-yolo_setting[2] = 'batch = %d\n' % (yolo_batchSize)
-yolo_setting[17] = 'learning_rate = %f\n' % (yolo_lr)
-yolo_setting[19] = 'max_batches = %d\n' % (yolo_iter)
-f_yolo = open(darknet_root + '/cfg/yolov3-mice.cfg', 'w+')
-f_yolo.writelines(yolo_setting)
-f_yolo.close()
-
-yolo_train_cmd = './darknet detector train cfg/mice.data cfg/yolov3-mice.cfg {} -gpus {}\n'.format(
-    yolo_pretrain, gpu_id)
-f_cmd_id = open(darknet_root + '/train.sh', 'w')
-f_cmd_id.write(yolo_train_cmd)
-f_cmd_id.close()
-
-time_start = time.time()
-filePath = os.path.abspath('./outputOfYoloTraining.txt')
-with cd(darknet_root):
-    exitCode = executeAndWriteFile(['bash', 'train.sh'], filePath)
-    if exitCode != 0:
-        print(
-            'failed to train YOLO, please check output of YOLO training in %s' % (filePath))
-        sys.exit(1)
-time_end = time.time()
-print('YOLO training finished. Time used: {} seconds'.format(time_end - time_start))
+print('Detector training has not been supported yet. Please make sure you have downloaded the pre-trained weights.')
 
 
 # print('you can run the following cmd to train sppe:')

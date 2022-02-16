@@ -24,12 +24,6 @@ export LD_LIBRARY_PATH=/usr/local/cuda/lib64/:$LD_LIBRARY_PATH
 
 python setup.py build develop
 
-# modify Makefile according to cuda version
-cd ./Tracking/AlphaTracker/train_yolo/darknet/
-make
-cd ../../../../
-
-
 conda activate alphatracker
 cd ./Tracking/AlphaTracker/
 python3 download.py
