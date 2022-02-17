@@ -161,17 +161,17 @@ print('*** training sppe ***')
 if sppe_pretrain == '':
     sppe_pretrain = '{}/models/sppe/duc_se.pth'.format(AlphaTracker_root)
 sppe_pretrain = os.path.abspath(sppe_pretrain)
-sppe_train_cmd = 'CUDA_VISIBLE_DEVICES={} python train.py \\\n \
-            --dataset coco \\\n \
-            --img_folder_train {} \\\n \
-            --annot_file_train {} \\\n \
-            --img_folder_val {} \\\n \
-            --annot_file_val {} \\\n \
-            --expID {} \\\n \
-            --nClasses {} \\\n \
-            --LR {} --trainBatch {} \\\n \
-            --nEpochs {} \\\n \
-            --nThreads 6 \\\n \
+sppe_train_cmd = 'CUDA_VISIBLE_DEVICES={} python train.py \
+            --dataset coco \
+            --img_folder_train {} \
+            --annot_file_train {} \
+            --img_folder_val {} \
+            --annot_file_val {} \
+            --expID {} \
+            --nClasses {} \
+            --LR {} --trainBatch {} \
+            --nEpochs {} \
+            --nThreads 6 \
             --loadModel {}'.format(
     gpu_id,
     yolo_image_annot_root,
