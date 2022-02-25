@@ -82,7 +82,7 @@ The functions of each element in the toolbar is explained by the numerical order
 ### Import Data
 To  import data from Alphatracker clustering, follow the instructions shown on corresponding pop-ups.
 
-- Step 1:  Upload the JSON file that contains the clip information. For example, [clips_info.json](../BehavioralClustering/data_for_ui_1/clips_info.json)
+- Step 1: Upload the JSON file that contains the clip information. For example, [clips_info.json](../BehavioralClustering/data_for_ui_1/clips_info.json)
 
     <img src = "media/4.png" width = 400>
 

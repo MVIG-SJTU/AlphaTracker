@@ -12,6 +12,10 @@ This project is tested in conda env in linux, and thus that is the recommended e
 
 Please makse sure that your NVIDIA driver version  >= 450.
 
+### Git Bash
+
+Windows users please install [Git Bash](https://git-scm.com/downloads), and make sure your commands are all run in Git Bash.
+
 ### Install AlphaTracker
 
 In your command window, locate the terminal prompt. Open this application. Then, find the folder that contains the `AlphaTracker` repository that you just downloaded. Then inside the terminal window, change the directory as follows: `cd /path/to/AlphaTracker`. 
@@ -103,5 +107,4 @@ number and try retraining
 can potentially lead to better performance.
 
 <br>
-
 
