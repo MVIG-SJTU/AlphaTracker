@@ -13,7 +13,7 @@ Download and unzip the file.
 
 Run `python server.py` in command window in the unzipped folder. A window should appear in the user's browser. Then click `html/`. From there, select a program you want to run. `cluster.html` is the Cluster UI and `curate.html` is the Tracking UI.
 
-<img src="media/html.jpg" width = "300" /><img src = "media/window.png" width = "400" >
+<img src="media/html.jpg" width = "300" /><img src="media/window.png" width = "400" />
 
 <br>
     
