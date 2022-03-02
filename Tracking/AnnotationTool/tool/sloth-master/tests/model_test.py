@@ -6,9 +6,9 @@ from sloth.core.labeltool import LabelTool
 from sloth import APP_NAME, ORGANIZATION_NAME, ORGANIZATION_DOMAIN
 from pymodeltest.modeltest import ModelTest
 
-SAMPLE_DATA = os.path.join(os.path.dirname(__file__), 'data', 'example1_labels.json')
+SAMPLE_DATA = os.path.join(os.path.dirname(__file__), "data", "example1_labels.json")
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     app = QApplication(sys.argv)
     app.setOrganizationName(ORGANIZATION_NAME)
     app.setOrganizationDomain(ORGANIZATION_DOMAIN)

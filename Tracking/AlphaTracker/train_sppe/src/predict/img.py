@@ -38,24 +38,22 @@ def torch_to_im(img):
 def load_image(img_path):
     # H x W x C => C x H x W
     # print(img_path)
-    return im_to_torch(scipy.misc.imread(img_path, mode='RGB'))
+    return im_to_torch(scipy.misc.imread(img_path, mode="RGB"))
 
 
 def to_numpy(tensor):
     if torch.is_tensor(tensor):
         return tensor.cpu().numpy()
-    elif type(tensor).__module__ != 'numpy':
-        raise ValueError("Cannot convert {} to numpy array"
-                         .format(type(tensor)))
+    elif type(tensor).__module__ != "numpy":
+        raise ValueError("Cannot convert {} to numpy array".format(type(tensor)))
     return tensor
 
 
 def to_torch(ndarray):
-    if type(ndarray).__module__ == 'numpy':
+    if type(ndarray).__module__ == "numpy":
         return torch.from_numpy(ndarray)
     elif not torch.is_tensor(ndarray):
-        raise ValueError("Cannot convert {} to torch tensor"
-                         .format(type(ndarray)))
+        raise ValueError("Cannot convert {} to torch tensor".format(type(ndarray)))
     return ndarray
 
 
@@ -66,8 +64,7 @@ def drawGaussian(img, pt, sigma):
     ul = [int(pt[0] - tmpSize), int(pt[1] - tmpSize)]
     br = [int(pt[0] + tmpSize + 1), int(pt[1] + tmpSize + 1)]
 
-    if (ul[0] >= img.shape[1] or ul[1] >= img.shape[0] or
-            br[0] < 0 or br[1] < 0):
+    if ul[0] >= img.shape[1] or ul[1] >= img.shape[0] or br[0] < 0 or br[1] < 0:
         # If not, just return the image as is
         return to_torch(img)
 
@@ -78,7 +75,7 @@ def drawGaussian(img, pt, sigma):
     x0 = y0 = size // 2
     sigma = size / 4.0
     # The gaussian is not normalized, we want the center value to equal 1
-    g = np.exp(- ((x - x0) ** 2 + (y - y0) ** 2) / (2 * sigma ** 2))
+    g = np.exp(-((x - x0) ** 2 + (y - y0) ** 2) / (2 * sigma**2))
 
     # Usable gaussian range
     g_x = max(0, -ul[0]), min(br[0], img.shape[1]) - ul[0]
@@ -87,7 +84,7 @@ def drawGaussian(img, pt, sigma):
     img_x = max(0, ul[0]), min(br[0], img.shape[1])
     img_y = max(0, ul[1]), min(br[1], img.shape[0])
 
-    img[img_y[0]:img_y[1], img_x[0]:img_x[1]] = g[g_y[0]:g_y[1], g_x[0]:g_x[1]]
+    img[img_y[0] : img_y[1], img_x[0] : img_x[1]] = g[g_y[0] : g_y[1], g_x[0] : g_x[1]]
     return to_torch(img)
 
 
@@ -138,7 +135,7 @@ def cropBox(img, ul, br, resH, resW):
         img = img[np.newaxis, :]
 
     newDim = torch.IntTensor((img.size(0), int(lenH), int(lenW)))
-    newImg = img[:, ul[1]:, ul[0]:].clone()
+    newImg = img[:, ul[1] :, ul[0] :].clone()
     # Crop and Padding
     size = torch.IntTensor((int(br[1] - ul[1]), int(br[0] - ul[0])))
     newImg = SpecialCrop(size, 1)(newImg)
@@ -147,12 +144,14 @@ def cropBox(img, ul, br, resH, resW):
     v_Img = torch.autograd.Variable(newImg)
     v_Img = torch.unsqueeze(v_Img, 0)
     # newImg = F.upsample_bilinear(v_Img, size=(int(resH), int(resW))).data[0]
-    if torch.__version__ == '0.4.0a0+32f3bf7' or torch.__version__ == '0.4.0':
-        newImg = F.upsample(v_Img, size=(int(resH), int(resW)),
-                            mode='bilinear', align_corners=True).data[0]
+    if torch.__version__ == "0.4.0a0+32f3bf7" or torch.__version__ == "0.4.0":
+        newImg = F.upsample(
+            v_Img, size=(int(resH), int(resW)), mode="bilinear", align_corners=True
+        ).data[0]
     else:
-        newImg = F.interpolate(v_Img, size=(int(resH), int(resW)),
-                               mode='bilinear', align_corners=True).data[0]
+        newImg = F.interpolate(
+            v_Img, size=(int(resH), int(resW)), mode="bilinear", align_corners=True
+        ).data[0]
     return newImg
 
 
@@ -165,7 +164,7 @@ def flip_v(x, cuda=False):
 
 
 def flip(x):
-    assert (x.dim() == 3 or x.dim() == 4)
+    assert x.dim() == 3 or x.dim() == 4
     # dim = x.dim() - 1
     try:
         x = x.cpu().numpy().copy()
@@ -173,13 +172,12 @@ def flip(x):
     except:
         x = x.numpy().copy()
         usingCUDA = False
-        
+
     if x.ndim == 3:
         x = np.transpose(np.fliplr(np.transpose(x, (0, 2, 1))), (0, 2, 1))
     elif x.ndim == 4:
         for i in range(x.shape[0]):
-            x[i] = np.transpose(
-                np.fliplr(np.transpose(x[i], (0, 2, 1))), (0, 2, 1))
+            x[i] = np.transpose(np.fliplr(np.transpose(x[i], (0, 2, 1))), (0, 2, 1))
     # x = x.swapaxes(dim, 0)
     # x = x[::-1, ...]
     # x = x.swapaxes(0, dim)
@@ -189,7 +187,7 @@ def flip(x):
 
 def shuffleLR(x, dataset):
     flipRef = dataset.flipRef
-    assert (x.dim() == 3 or x.dim() == 4)
+    assert x.dim() == 3 or x.dim() == 4
     for pair in flipRef:
         # print(pair)
         dim0, dim1 = pair
@@ -199,12 +197,12 @@ def shuffleLR(x, dataset):
             tmp = x[:, dim1].clone()
             x[:, dim1] = x[:, dim0].clone()
             x[:, dim0] = tmp.clone()
-            #x[:, dim0], x[:, dim1] = deepcopy((x[:, dim1], x[:, dim0]))
+            # x[:, dim0], x[:, dim1] = deepcopy((x[:, dim1], x[:, dim0]))
         else:
             tmp = x[dim1].clone()
             x[dim1] = x[dim0].clone()
             x[dim0] = tmp.clone()
-            #x[dim0], x[dim1] = deepcopy((x[dim1], x[dim0]))
+            # x[dim0], x[dim1] = deepcopy((x[dim1], x[dim0]))
     return x
 
 
@@ -216,44 +214,130 @@ def shuffleLR_v(x, dataset, cuda=False):
     return x
 
 
-def vis_frame(frame, im_res, format='coco'):
-    '''
+def vis_frame(frame, im_res, format="coco"):
+    """
     frame: frame image
     im_res: im_res of predictions
     format: coco or mpii
 
     return rendered image
-    '''
-    if format == 'coco':
+    """
+    if format == "coco":
         l_pair = [
-            (0, 1), (0, 2), (1, 3), (2, 4),  # Head
-            (5, 6), (5, 7), (7, 9), (6, 8), (8, 10),
-            (5, 11), (6, 12),  # Body
-            (11, 13), (12, 14), (13, 15), (14, 16)
+            (0, 1),
+            (0, 2),
+            (1, 3),
+            (2, 4),  # Head
+            (5, 6),
+            (5, 7),
+            (7, 9),
+            (6, 8),
+            (8, 10),
+            (5, 11),
+            (6, 12),  # Body
+            (11, 13),
+            (12, 14),
+            (13, 15),
+            (14, 16),
         ]
-        p_color = [RED, RED, RED, RED, RED, YELLOW, YELLOW, YELLOW,
-                   YELLOW, YELLOW, YELLOW, GREEN, GREEN, GREEN, GREEN, GREEN, GREEN]
-        line_color = [YELLOW, YELLOW, YELLOW, YELLOW, BLUE, BLUE,
-                      BLUE, BLUE, BLUE, PURPLE, PURPLE, RED, RED, RED, RED]
-    elif format == 'mpii':
+        p_color = [
+            RED,
+            RED,
+            RED,
+            RED,
+            RED,
+            YELLOW,
+            YELLOW,
+            YELLOW,
+            YELLOW,
+            YELLOW,
+            YELLOW,
+            GREEN,
+            GREEN,
+            GREEN,
+            GREEN,
+            GREEN,
+            GREEN,
+        ]
+        line_color = [
+            YELLOW,
+            YELLOW,
+            YELLOW,
+            YELLOW,
+            BLUE,
+            BLUE,
+            BLUE,
+            BLUE,
+            BLUE,
+            PURPLE,
+            PURPLE,
+            RED,
+            RED,
+            RED,
+            RED,
+        ]
+    elif format == "mpii":
         l_pair = [
-            (8, 9), (11, 12), (11, 10), (2, 1), (1, 0),
-            (13, 14), (14, 15), (3, 4), (4, 5),
-            (8, 7), (7, 6), (6, 2), (6, 3), (8, 12), (8, 13)
+            (8, 9),
+            (11, 12),
+            (11, 10),
+            (2, 1),
+            (1, 0),
+            (13, 14),
+            (14, 15),
+            (3, 4),
+            (4, 5),
+            (8, 7),
+            (7, 6),
+            (6, 2),
+            (6, 3),
+            (8, 12),
+            (8, 13),
         ]
-        p_color = [PURPLE, BLUE, BLUE, RED, RED, BLUE, BLUE, RED,
-                   RED, PURPLE, PURPLE, PURPLE, RED, RED, BLUE, BLUE]
-        line_color = [PURPLE, BLUE, BLUE, RED, RED, BLUE, BLUE,
-                      RED, RED, PURPLE, PURPLE, RED, RED, BLUE, BLUE]
+        p_color = [
+            PURPLE,
+            BLUE,
+            BLUE,
+            RED,
+            RED,
+            BLUE,
+            BLUE,
+            RED,
+            RED,
+            PURPLE,
+            PURPLE,
+            PURPLE,
+            RED,
+            RED,
+            BLUE,
+            BLUE,
+        ]
+        line_color = [
+            PURPLE,
+            BLUE,
+            BLUE,
+            RED,
+            RED,
+            BLUE,
+            BLUE,
+            RED,
+            RED,
+            PURPLE,
+            PURPLE,
+            RED,
+            RED,
+            BLUE,
+            BLUE,
+        ]
     else:
         raise NotImplementedError
 
-    im_name = im_res['imgname'].split('/')[-1]
+    im_name = im_res["imgname"].split("/")[-1]
     img = frame.copy()
-    for human in im_res['result']:
+    for human in im_res["result"]:
         part_line = {}
-        kp_preds = human['keypoints']
-        kp_scores = human['kp_score']
+        kp_preds = human["keypoints"]
+        kp_scores = human["kp_score"]
         # Draw keypoints
         for n in range(kp_scores.shape[0]):
             if kp_scores[n] <= 0.15:
@@ -262,16 +346,21 @@ def vis_frame(frame, im_res, format='coco'):
             part_line[n] = (cor_x, cor_y)
             cv2.circle(img, (cor_x, cor_y), 4, p_color[n], -1)
             # Now create a mask of logo and create its inverse mask also
-            #transparency = max(0, min(1, kp_scores[n]))
-            #img = cv2.addWeighted(bg, transparency, img, 1, 0)
+            # transparency = max(0, min(1, kp_scores[n]))
+            # img = cv2.addWeighted(bg, transparency, img, 1, 0)
         # Draw limbs
         for i, (start_p, end_p) in enumerate(l_pair):
             if start_p in part_line and end_p in part_line:
                 start_xy = part_line[start_p]
                 end_xy = part_line[end_p]
-                cv2.line(img, start_xy, end_xy,
-                         line_color[i], (0.5 * (kp_scores[start_p] + kp_scores[end_p])) + 1)
-                #transparency = max(
+                cv2.line(
+                    img,
+                    start_xy,
+                    end_xy,
+                    line_color[i],
+                    (0.5 * (kp_scores[start_p] + kp_scores[end_p])) + 1,
+                )
+                # transparency = max(
                 #    0, min(1, (kp_scores[start_p] + kp_scores[end_p])))
-                #img = cv2.addWeighted(bg, transparency, img, 1, 0)
+                # img = cv2.addWeighted(bg, transparency, img, 1, 0)
     return img

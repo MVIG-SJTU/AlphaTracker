@@ -1,6 +1,7 @@
 import math
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
+
 try:
     import okapy.videoio
 except ImportError:
@@ -18,9 +19,13 @@ class GraphicsView(QGraphicsView):
     def __init__(self, parent=None):
         QGraphicsView.__init__(self, parent)
         self.setDragMode(QGraphicsView.RubberBandDrag)
-        #self.setDragMode(QGraphicsView.ScrollHandDrag)
+        # self.setDragMode(QGraphicsView.ScrollHandDrag)
         self.setMouseTracking(True)
-        self.setRenderHints(QPainter.Antialiasing | QPainter.SmoothPixmapTransform | QPainter.TextAntialiasing)
+        self.setRenderHints(
+            QPainter.Antialiasing
+            | QPainter.SmoothPixmapTransform
+            | QPainter.TextAntialiasing
+        )
         self.setStyleSheet("QFrame { border: 3px solid black }")
         self._active = False
         self._pan = False
@@ -43,7 +48,7 @@ class GraphicsView(QGraphicsView):
 
     def setScene(self, scene):
         QGraphicsView.setScene(self, scene)
-        #self.setScaleAbsolute(1)
+        # self.setScaleAbsolute(1)
 
     def getScale(self):
         if self.isTransformed():
@@ -69,16 +74,16 @@ class GraphicsView(QGraphicsView):
             self.update()
 
     def getMinScale(self):
-        #min_scale_w = float(self.width()  - 2*self.frameWidth()) / (self.scene().width()+1)
-        #min_scale_h = float(self.height() - 2*self.frameWidth()) / (self.scene().height()+1)
-        #min_scale = min(min_scale_w, min_scale_h)
+        # min_scale_w = float(self.width()  - 2*self.frameWidth()) / (self.scene().width()+1)
+        # min_scale_h = float(self.height() - 2*self.frameWidth()) / (self.scene().height()+1)
+        # min_scale = min(min_scale_w, min_scale_h)
         return 0.1
 
     def getMaxScale(self):
-        #max_scale_w = self.scene().height() / 5.0
-        #max_scale_h = self.scene().width()  / 5.0
-        #max_scale = min(max_scale_w, max_scale_h)
-        #return max_scale
+        # max_scale_w = self.scene().height() / 5.0
+        # max_scale_h = self.scene().width()  / 5.0
+        # max_scale = min(max_scale_w, max_scale_h)
+        # return max_scale
         return 20.0
 
     def setScaleAbsolute(self, scale):
@@ -98,9 +103,9 @@ class GraphicsView(QGraphicsView):
         self.focusIn.emit()
 
     def resizeEvent(self, event):
-        #if self.getScale() < self.getMinScale():
+        # if self.getScale() < self.getMinScale():
         #    self.setScaleAbsolute(0)
-        #if self.getScale() > self.getMaxScale():
+        # if self.getScale() > self.getMaxScale():
         #    self.setScaleAbsolute(self.getMaxScale())
         QGraphicsView.resizeEvent(self, event)
 
@@ -124,8 +129,12 @@ class GraphicsView(QGraphicsView):
 
     def mouseMoveEvent(self, event):
         if self._pan:
-            self.horizontalScrollBar().setValue(self.horizontalScrollBar().value() - (event.x() - self._panStartX))
-            self.verticalScrollBar().setValue(self.verticalScrollBar().value() - (event.y() - self._panStartY))
+            self.horizontalScrollBar().setValue(
+                self.horizontalScrollBar().value() - (event.x() - self._panStartX)
+            )
+            self.verticalScrollBar().setValue(
+                self.verticalScrollBar().value() - (event.y() - self._panStartY)
+            )
             self._panStartX = event.x()
             self._panStartY = event.y()
             event.accept()
@@ -173,7 +182,7 @@ class SingleFrameViewer(FrameViewer):
 
 class MultiFrameEqualViewer(FrameViewer):
     def __init__(self, annotation_scenes, parent=None):
-        assert(len(annotation_scenes) > 0)
+        assert len(annotation_scenes) > 0
         FrameViewer.__init__(self, parent)
         self.active_scene_view = -1
         self.scenes = annotation_scenes
@@ -188,7 +197,7 @@ class MultiFrameEqualViewer(FrameViewer):
         n_cols = math.ceil(len(self.scenes) / n_rows)
         self.layout = QGridLayout(self)
         for i, scene_view in enumerate(self.scene_views):
-            self.layout.addWidget(scene_view, i/n_cols, i % n_cols)
+            self.layout.addWidget(scene_view, i / n_cols, i % n_cols)
         self.setLayout(self.layout)
         self.activateSceneView(0)
 

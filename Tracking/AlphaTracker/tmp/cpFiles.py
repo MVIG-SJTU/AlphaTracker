@@ -19,12 +19,9 @@ import os
 # 	os.system('cp {}/{}/{} {}/'.format(ori_img_folder_root, fn_split[0]+'_'+fn_split[1]+'_'+fn_split[2]+'_'+fn_split[3]+'_'+fn_split[4]+'_' +fn_split[5], fn, dest_img_root))
 
 
-
-
-
-ori_img_root = '/disk4/zexin/datasets/mice/new_labeled_byCompany/0416/03/color/'
-dest_img_root = '/disk4/zexin/datasets/mice/new_labeled_byCompany/0416/03/forDemoVideo/'
+ori_img_root = "/disk4/zexin/datasets/mice/new_labeled_byCompany/0416/03/color/"
+dest_img_root = "/disk4/zexin/datasets/mice/new_labeled_byCompany/0416/03/forDemoVideo/"
 if not os.path.exists(dest_img_root):
-	os.mkdir(dest_img_root)
-for i in range(3000,3600):
-	os.system('cp %s/%04d.png %s/'%(ori_img_root,i,dest_img_root))
+    os.mkdir(dest_img_root)
+for i in range(3000, 3600):
+    os.system("cp %s/%04d.png %s/" % (ori_img_root, i, dest_img_root))

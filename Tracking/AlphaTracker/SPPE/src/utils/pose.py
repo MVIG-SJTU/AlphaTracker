@@ -1,5 +1,15 @@
-from utils.img import (load_image, drawGaussian, drawBigCircle, drawSmallCircle,
-                       cropBox, transformBox, transformBoxInvert, flip, shuffleLR, drawCOCO)
+from utils.img import (
+    load_image,
+    drawGaussian,
+    drawBigCircle,
+    drawSmallCircle,
+    cropBox,
+    transformBox,
+    transformBoxInvert,
+    flip,
+    shuffleLR,
+    drawCOCO,
+)
 from utils.eval import getPrediction
 import torch
 import numpy as np
@@ -12,7 +22,9 @@ def rnd(x):
     return max(-2 * x, min(2 * x, np.random.randn(1)[0] * x))
 
 
-def generateSampleBox(img_path, bndbox, part, nJoints, imgset, scale_factor, dataset, train=True):
+def generateSampleBox(
+    img_path, bndbox, part, nJoints, imgset, scale_factor, dataset, train=True
+):
 
     nJoints_coco = 17
     nJoints_mpii = 16
@@ -45,7 +57,7 @@ def generateSampleBox(img_path, bndbox, part, nJoints, imgset, scale_factor, dat
         PatchScale = random.uniform(0, 1)
         if PatchScale > 0.85:
             ratio = ht / width
-            if (width < ht):
+            if width < ht:
                 patchWidth = PatchScale * width
                 patchHt = patchWidth * ratio
             else:
@@ -58,10 +70,25 @@ def generateSampleBox(img_path, bndbox, part, nJoints, imgset, scale_factor, dat
             xmax = xmin + patchWidth + 1
             ymax = ymin + patchHt + 1
         else:
-            xmin = max(1, min(upLeft[0] + np.random.normal(-0.0142, 0.1158) * width, imgwidth - 3))
-            ymin = max(1, min(upLeft[1] + np.random.normal(0.0043, 0.068) * ht, imght - 3))
-            xmax = min(max(xmin + 2, bottomRight[0] + np.random.normal(0.0154, 0.1337) * width), imgwidth - 3)
-            ymax = min(max(ymin + 2, bottomRight[1] + np.random.normal(-0.0013, 0.0711) * ht), imght - 3)
+            xmin = max(
+                1,
+                min(
+                    upLeft[0] + np.random.normal(-0.0142, 0.1158) * width, imgwidth - 3
+                ),
+            )
+            ymin = max(
+                1, min(upLeft[1] + np.random.normal(0.0043, 0.068) * ht, imght - 3)
+            )
+            xmax = min(
+                max(
+                    xmin + 2, bottomRight[0] + np.random.normal(0.0154, 0.1337) * width
+                ),
+                imgwidth - 3,
+            )
+            ymax = min(
+                max(ymin + 2, bottomRight[1] + np.random.normal(-0.0013, 0.0711) * ht),
+                imght - 3,
+            )
 
         upLeft[0] = xmin
         upLeft[1] = ymin
@@ -70,15 +97,25 @@ def generateSampleBox(img_path, bndbox, part, nJoints, imgset, scale_factor, dat
 
     # Counting Joints number
     jointNum = 0
-    if imgset == 'coco':
+    if imgset == "coco":
         for i in range(17):
-            if part[i][0] > 0 and part[i][0] > upLeft[0] and part[i][1] > upLeft[1] \
-               and part[i][0] < bottomRight[0] and part[i][1] < bottomRight[1]:
+            if (
+                part[i][0] > 0
+                and part[i][0] > upLeft[0]
+                and part[i][1] > upLeft[1]
+                and part[i][0] < bottomRight[0]
+                and part[i][1] < bottomRight[1]
+            ):
                 jointNum += 1
     else:
         for i in range(16):
-            if part[i][0] > 0 and part[i][0] > upLeft[0] and part[i][1] > upLeft[1] \
-               and part[i][0] < bottomRight[0] and part[i][1] < bottomRight[1]:
+            if (
+                part[i][0] > 0
+                and part[i][0] > upLeft[0]
+                and part[i][1] > upLeft[1]
+                and part[i][0] < bottomRight[0]
+                and part[i][1] < bottomRight[1]
+            ):
                 jointNum += 1
 
     # Doing Random Crop
@@ -117,35 +154,165 @@ def generateSampleBox(img_path, bndbox, part, nJoints, imgset, scale_factor, dat
     setMask = torch.zeros(nJoints, opt.outputResH, opt.outputResW)
 
     # Draw Label
-    if imgset == 'coco':
+    if imgset == "coco":
         for i in range(nJoints_coco):
-            if part[i][0] > 0 and part[i][0] > upLeft[0] and part[i][1] > upLeft[1] \
-               and part[i][0] < bottomRight[0] and part[i][1] < bottomRight[1]:
-                out_bigcircle[i] = drawBigCircle(out_bigcircle[i], transformBox(part[i], upLeft, bottomRight, opt.inputResH, opt.inputResW, opt.outputResH, opt.outputResW), opt.hmGauss * 2)
-                out_smallcircle[i] = drawSmallCircle(out_smallcircle[i], transformBox(part[i], upLeft, bottomRight, opt.inputResH, opt.inputResW, opt.outputResH, opt.outputResW), opt.hmGauss)
-                out[i] = drawGaussian(out[i], transformBox(part[i], upLeft, bottomRight, opt.inputResH, opt.inputResW, opt.outputResH, opt.outputResW), opt.hmGauss)
+            if (
+                part[i][0] > 0
+                and part[i][0] > upLeft[0]
+                and part[i][1] > upLeft[1]
+                and part[i][0] < bottomRight[0]
+                and part[i][1] < bottomRight[1]
+            ):
+                out_bigcircle[i] = drawBigCircle(
+                    out_bigcircle[i],
+                    transformBox(
+                        part[i],
+                        upLeft,
+                        bottomRight,
+                        opt.inputResH,
+                        opt.inputResW,
+                        opt.outputResH,
+                        opt.outputResW,
+                    ),
+                    opt.hmGauss * 2,
+                )
+                out_smallcircle[i] = drawSmallCircle(
+                    out_smallcircle[i],
+                    transformBox(
+                        part[i],
+                        upLeft,
+                        bottomRight,
+                        opt.inputResH,
+                        opt.inputResW,
+                        opt.outputResH,
+                        opt.outputResW,
+                    ),
+                    opt.hmGauss,
+                )
+                out[i] = drawGaussian(
+                    out[i],
+                    transformBox(
+                        part[i],
+                        upLeft,
+                        bottomRight,
+                        opt.inputResH,
+                        opt.inputResW,
+                        opt.outputResH,
+                        opt.outputResW,
+                    ),
+                    opt.hmGauss,
+                )
             setMask[i].add_(1)
-    elif imgset == 'mpii':
+    elif imgset == "mpii":
         for i in range(nJoints_coco, nJoints_coco + nJoints_mpii):
-            if part[i - nJoints_coco][0] > 0 and part[i - nJoints_coco][0] > upLeft[0] and part[i - nJoints_coco][1] > upLeft[1] \
-               and part[i - nJoints_coco][0] < bottomRight[0] and part[i - nJoints_coco][1] < bottomRight[1]:
-                out_bigcircle[i] = drawBigCircle(out_bigcircle[i], transformBox(part[i - nJoints_coco], upLeft, bottomRight, opt.inputResH, opt.inputResW, opt.outputResH, opt.outputResW), opt.hmGauss * 2)
-                out_smallcircle[i] = drawSmallCircle(out_smallcircle[i], transformBox(part[i - nJoints_coco], upLeft, bottomRight, opt.inputResH, opt.inputResW, opt.outputResH, opt.outputResW), opt.hmGauss)
-                out[i] = drawGaussian(out[i], transformBox(part[i - nJoints_coco], upLeft, bottomRight, opt.inputResH, opt.inputResW, opt.outputResH, opt.outputResW), opt.hmGauss)
+            if (
+                part[i - nJoints_coco][0] > 0
+                and part[i - nJoints_coco][0] > upLeft[0]
+                and part[i - nJoints_coco][1] > upLeft[1]
+                and part[i - nJoints_coco][0] < bottomRight[0]
+                and part[i - nJoints_coco][1] < bottomRight[1]
+            ):
+                out_bigcircle[i] = drawBigCircle(
+                    out_bigcircle[i],
+                    transformBox(
+                        part[i - nJoints_coco],
+                        upLeft,
+                        bottomRight,
+                        opt.inputResH,
+                        opt.inputResW,
+                        opt.outputResH,
+                        opt.outputResW,
+                    ),
+                    opt.hmGauss * 2,
+                )
+                out_smallcircle[i] = drawSmallCircle(
+                    out_smallcircle[i],
+                    transformBox(
+                        part[i - nJoints_coco],
+                        upLeft,
+                        bottomRight,
+                        opt.inputResH,
+                        opt.inputResW,
+                        opt.outputResH,
+                        opt.outputResW,
+                    ),
+                    opt.hmGauss,
+                )
+                out[i] = drawGaussian(
+                    out[i],
+                    transformBox(
+                        part[i - nJoints_coco],
+                        upLeft,
+                        bottomRight,
+                        opt.inputResH,
+                        opt.inputResW,
+                        opt.outputResH,
+                        opt.outputResW,
+                    ),
+                    opt.hmGauss,
+                )
             setMask[i].add_(1)
     else:
         for i in range(nJoints_coco, nJoints_coco + nJoints_mpii):
-            if part[i - nJoints_coco][0] > 0 and part[i - nJoints_coco][0] > upLeft[0] and part[i - nJoints_coco][1] > upLeft[1] \
-               and part[i - nJoints_coco][0] < bottomRight[0] and part[i - nJoints_coco][1] < bottomRight[1]:
-                out_bigcircle[i] = drawBigCircle(out_bigcircle[i], transformBox(part[i - nJoints_coco], upLeft, bottomRight, opt.inputResH, opt.inputResW, opt.outputResH, opt.outputResW), opt.hmGauss * 2)
-                out_smallcircle[i] = drawSmallCircle(out_smallcircle[i], transformBox(part[i - nJoints_coco], upLeft, bottomRight, opt.inputResH, opt.inputResW, opt.outputResH, opt.outputResW), opt.hmGauss)
-                out[i] = drawGaussian(out[i], transformBox(part[i - nJoints_coco], upLeft, bottomRight, opt.inputResH, opt.inputResW, opt.outputResH, opt.outputResW), opt.hmGauss)
+            if (
+                part[i - nJoints_coco][0] > 0
+                and part[i - nJoints_coco][0] > upLeft[0]
+                and part[i - nJoints_coco][1] > upLeft[1]
+                and part[i - nJoints_coco][0] < bottomRight[0]
+                and part[i - nJoints_coco][1] < bottomRight[1]
+            ):
+                out_bigcircle[i] = drawBigCircle(
+                    out_bigcircle[i],
+                    transformBox(
+                        part[i - nJoints_coco],
+                        upLeft,
+                        bottomRight,
+                        opt.inputResH,
+                        opt.inputResW,
+                        opt.outputResH,
+                        opt.outputResW,
+                    ),
+                    opt.hmGauss * 2,
+                )
+                out_smallcircle[i] = drawSmallCircle(
+                    out_smallcircle[i],
+                    transformBox(
+                        part[i - nJoints_coco],
+                        upLeft,
+                        bottomRight,
+                        opt.inputResH,
+                        opt.inputResW,
+                        opt.outputResH,
+                        opt.outputResW,
+                    ),
+                    opt.hmGauss,
+                )
+                out[i] = drawGaussian(
+                    out[i],
+                    transformBox(
+                        part[i - nJoints_coco],
+                        upLeft,
+                        bottomRight,
+                        opt.inputResH,
+                        opt.inputResW,
+                        opt.outputResH,
+                        opt.outputResW,
+                    ),
+                    opt.hmGauss,
+                )
             if i != 6 + nJoints_coco and i != 7 + nJoints_coco:
                 setMask[i].add_(1)
 
     if opt.debug:
-        preds_hm, preds_img, preds_scores = getPrediction(out.unsqueeze(0), upLeft.unsqueeze(0), bottomRight.unsqueeze(0), opt.inputResH,
-                                                          opt.inputResW, opt.outputResH, opt.outputResW)
+        preds_hm, preds_img, preds_scores = getPrediction(
+            out.unsqueeze(0),
+            upLeft.unsqueeze(0),
+            bottomRight.unsqueeze(0),
+            opt.inputResH,
+            opt.inputResW,
+            opt.outputResH,
+            opt.outputResW,
+        )
         tmp_preds = preds_hm.mul(opt.inputResH / opt.outputResH)
         drawCOCO(ori_inp.unsqueeze(0), tmp_preds, preds_scores)
 
@@ -153,7 +320,7 @@ def generateSampleBox(img_path, bndbox, part, nJoints, imgset, scale_factor, dat
         # Flip
         if random.uniform(0, 1) < 0.5:
             inp = flip(inp)
-            ori_inp = flip(ori_inp)        
+            ori_inp = flip(ori_inp)
             out_bigcircle = shuffleLR(flip(out_bigcircle), dataset)
             out_smallcircle = shuffleLR(flip(out_smallcircle), dataset)
             out = shuffleLR(flip(out), dataset)

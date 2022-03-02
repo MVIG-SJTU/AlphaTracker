@@ -4,95 +4,120 @@ import time
 
 from tqdm import tqdm
 
-from setting import AlphaTracker_root, exp_name, num_pose, gpu_id, sppe_epoch, \
-                    video_full_path, start_frame, end_frame, max_pid_id_setting, \
-                    result_folder, weights, match, remove_oriFrame, vis_track_result
+from setting import (
+    AlphaTracker_root,
+    exp_name,
+    num_pose,
+    gpu_id,
+    sppe_epoch,
+    video_full_path,
+    start_frame,
+    end_frame,
+    max_pid_id_setting,
+    result_folder,
+    weights,
+    match,
+    remove_oriFrame,
+    vis_track_result,
+)
 
 
 # demo video setting
-video_image_save_path_base = result_folder + '/oriFrameFromVideo/'
+video_image_save_path_base = result_folder + "/oriFrameFromVideo/"
 save_image_format = "frame_%d.png"
 
 
 # code path setting
-darknet_root = AlphaTracker_root + '/train_yolo/darknet/'
-sppe_root = AlphaTracker_root + '/train_sppe/'
+darknet_root = AlphaTracker_root + "/train_yolo/darknet/"
+sppe_root = AlphaTracker_root + "/train_sppe/"
 
 
 # automatic setting
 # general data setting
-ln_image_dir = AlphaTracker_root + '/data/' + exp_name + '/color_image/'
+ln_image_dir = AlphaTracker_root + "/data/" + exp_name + "/color_image/"
 
 # sppe data setting
-train_h5_file = sppe_root + '/data/' + exp_name + '/data_newLabeled_01_train.h5'
-val_h5_file = sppe_root + '/data/' + exp_name + '/data_newLabeled_01_val.h5'
+train_h5_file = sppe_root + "/data/" + exp_name + "/data_newLabeled_01_train.h5"
+val_h5_file = sppe_root + "/data/" + exp_name + "/data_newLabeled_01_val.h5"
 
 # yolo data setting
-color_img_prefix = 'data/' + exp_name + '/color/'
-file_list_root = 'data/' + exp_name + '/'
-yolo_image_annot_root = darknet_root + '/'+ color_img_prefix
+color_img_prefix = "data/" + exp_name + "/color/"
+file_list_root = "data/" + exp_name + "/"
+yolo_image_annot_root = darknet_root + "/" + color_img_prefix
 
-train_list_file = darknet_root + '/' + file_list_root + '/' + 'train.txt'
-val_list_file = darknet_root + '/' + file_list_root + '/' + 'valid.txt'
-valid_image_root = darknet_root + '/data/' + exp_name +' /valid_image/'
+train_list_file = darknet_root + "/" + file_list_root + "/" + "train.txt"
+val_list_file = darknet_root + "/" + file_list_root + "/" + "valid.txt"
+valid_image_root = darknet_root + "/data/" + exp_name + " /valid_image/"
 
 if not os.path.exists(result_folder):
     os.makedirs(result_folder)
 
 
 # running
-video_image_save_path = video_image_save_path_base + '/' + video_full_path.split('/')[-1].split('.')[0] + '/frame_folder/'
-print('Frame will be saved in %s'%(video_image_save_path))
-print('extracting frames from video...')
+video_image_save_path = (
+    video_image_save_path_base
+    + "/"
+    + video_full_path.split("/")[-1].split(".")[0]
+    + "/frame_folder/"
+)
+print("Frame will be saved in %s" % (video_image_save_path))
+print("extracting frames from video...")
 if not os.path.exists(video_image_save_path):
     os.makedirs(video_image_save_path)
 else:
-    os.system('rm -r {}/*'.format(video_image_save_path))
+    os.system("rm -r {}/*".format(video_image_save_path))
 
-print('processing %s'%(video_full_path))    
+print("processing %s" % (video_full_path))
 cap = cv2.VideoCapture(video_full_path)
 if cap.isOpened():
     success = True
 else:
     success = False
-    print(" read failed!make sure that the video format is supported by cv2.VideoCapture")
+    print(
+        " read failed!make sure that the video format is supported by cv2.VideoCapture"
+    )
 
 for frame_index in tqdm(range(end_frame)):
     success, frame = cap.read()
     if not success:
-        print('read frame failed!')
+        print("read frame failed!")
         break
     if frame_index < start_frame:
         continue
-    cv2.imwrite(video_image_save_path +  save_image_format % frame_index, frame)
-    
+    cv2.imwrite(video_image_save_path + save_image_format % frame_index, frame)
+
 cap.release()
 
 
-print('getting demo image:')
-os.system('cd {}'.format(AlphaTracker_root))
-demo_cmd = 'CUDA_VISIBLE_DEVICES=\'{}\' python3 demo.py \\\n \
+print("getting demo image:")
+os.system("cd {}".format(AlphaTracker_root))
+demo_cmd = "CUDA_VISIBLE_DEVICES='{}' python3 demo.py \\\n \
 --nClasses {} \\\n \
 --indir {} \\\n \
 --outdir {}  \\\n \
 --yolo_model_path {}/backup/{}/yolov3-mice_final.weights \\\n \
 --yolo_model_cfg {}/cfg/yolov3-mice.cfg \\\n \
 --pose_model_path {}exp/coco/{}/model_{}.pkl \\\n \
---use_boxGT 0'.format(gpu_id,
-    num_pose, \
-	video_image_save_path,\
-	result_folder,\
-	darknet_root,exp_name,\
-	darknet_root,\
-	sppe_root,exp_name,sppe_epoch)
+--use_boxGT 0".format(
+    gpu_id,
+    num_pose,
+    video_image_save_path,
+    result_folder,
+    darknet_root,
+    exp_name,
+    darknet_root,
+    sppe_root,
+    exp_name,
+    sppe_epoch,
+)
 print(demo_cmd)
 os.system(demo_cmd)
 
 
-if max_pid_id_setting==1:
-    print('\nThere is only one mouse, no need to do the tracking')
+if max_pid_id_setting == 1:
+    print("\nThere is only one mouse, no need to do the tracking")
 else:
-    track_cmd = 'python ./PoseFlow/tracker-general-fixNum-newSelect-noOrb.py \\\n \
+    track_cmd = "python ./PoseFlow/tracker-general-fixNum-newSelect-noOrb.py \\\n \
         --imgdir {} \\\n \
         --in_json {}/alphapose-results.json \\\n \
         --out_json {}/alphapose-results-forvis-tracked.json \\\n \
@@ -100,16 +125,24 @@ else:
         --image_format {} \
         --max_pid_id_setting {} --match {}  --weights {} \\\n \
         --out_video_path {}/{}_{}_{}_{}.mp4  \
-        '.format(video_image_save_path,\
-        	result_folder,\
-        	result_folder,\
-        	result_folder, vis_track_result,\
-        	'%s.png',\
-        	max_pid_id_setting, match, weights, \
-        	result_folder,exp_name,max_pid_id_setting, match, weights.replace(' ', ''))
-    print('\nTracking pose:')
+        ".format(
+        video_image_save_path,
+        result_folder,
+        result_folder,
+        result_folder,
+        vis_track_result,
+        "%s.png",
+        max_pid_id_setting,
+        match,
+        weights,
+        result_folder,
+        exp_name,
+        max_pid_id_setting,
+        match,
+        weights.replace(" ", ""),
+    )
+    print("\nTracking pose:")
     print(track_cmd)
     os.system(track_cmd)
 if remove_oriFrame:
-	os.system('rm -r {}'.format(video_image_save_path))
-
+    os.system("rm -r {}".format(video_image_save_path))

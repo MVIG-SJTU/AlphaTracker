@@ -6,7 +6,13 @@ import time
 import logging
 import copy
 from collections import MutableMapping
-from PyQt4.QtGui import QTreeView, QItemSelection, QItemSelectionModel, QSortFilterProxyModel, QBrush
+from PyQt4.QtGui import (
+    QTreeView,
+    QItemSelection,
+    QItemSelectionModel,
+    QSortFilterProxyModel,
+    QBrush,
+)
 from PyQt4.QtCore import QModelIndex, QAbstractItemModel, Qt, pyqtSignal, QVariant
 
 LOG = logging.getLogger(__name__)
@@ -96,10 +102,10 @@ class ModelItem:
         return self._children[pos]
 
     def getPreviousSibling(self, step=1):
-        return self.getSibling(self._row-step)
+        return self.getSibling(self._row - step)
 
     def getNextSibling(self, step=1):
-        return self.getSibling(self._row+step)
+        return self.getSibling(self._row + step)
 
     def getSibling(self, row):
         if self._parent is not None:
@@ -110,9 +116,9 @@ class ModelItem:
         return None
 
     def _attachToModel(self, model):
-        #assert self.model() is None
-        #assert self.parent() is not None
-        #assert self.parent().model() is not None
+        # assert self.model() is None
+        # assert self.parent() is not None
+        # assert self.parent().model() is not None
 
         self._model = model
         for item in self._children:
@@ -134,7 +140,7 @@ class ModelItem:
 
     def replaceChild(self, pos, item):
         item._parent = self
-        item._row    = pos
+        item._row = pos
         self._children[pos] = item
         if self._model is not None:
             self._children[pos]._attachToModel(self._model)
@@ -148,7 +154,7 @@ class ModelItem:
             self._model.beginInsertRows(self.index(), next_row, next_row)
 
         item._parent = self
-        item._row    = next_row
+        item._row = next_row
         self._children.insert(next_row, item)
 
         if pos >= 0:
@@ -161,14 +167,16 @@ class ModelItem:
                 self._model.endInsertRows()
 
     def appendChildren(self, items, signalModel=True):
-        #for item in items:
-            #assert isinstance(item, ModelItem)
-            #assert item.model() is None
-            #assert item.parent() is None
+        # for item in items:
+        # assert isinstance(item, ModelItem)
+        # assert item.model() is None
+        # assert item.parent() is None
 
         next_row = len(self._children)
         if self._model is not None and signalModel:
-            self._model.beginInsertRows(self.index(), next_row, next_row + len(items) - 1)
+            self._model.beginInsertRows(
+                self.index(), next_row, next_row + len(items) - 1
+            )
 
         for i, item in enumerate(items):
             item._parent = self
@@ -271,7 +279,9 @@ class RootModelItem(ModelItem):
         start2 = time.time()
         self.appendChildren(items)
         diff2 = time.time() - start2
-        LOG.debug("Creation of ModelItems: %.2fs, addition to model: %.2fs" % (diff1, diff2))
+        LOG.debug(
+            "Creation of ModelItems: %.2fs, addition to model: %.2fs" % (diff1, diff2)
+        )
 
     def numFiles(self):
         return len(self.children())
@@ -283,8 +293,11 @@ class RootModelItem(ModelItem):
         return count
 
     def getAnnotations(self):
-        return [child.getAnnotations() for child in self.children()
-                if hasattr(child, 'getAnnotations')]
+        return [
+            child.getAnnotations()
+            for child in self.children()
+            if hasattr(child, "getAnnotations")
+        ]
 
 
 class KeyValueModelItem(ModelItem, MutableMapping):
@@ -293,7 +306,7 @@ class KeyValueModelItem(ModelItem, MutableMapping):
         self._dict = {}
         self._items = {}
         self._hidden = set(hidden or [])
-        self._hidden.update({None, 'class', 'unlabeled', 'unconfirmed'})
+        self._hidden.update({None, "class", "unlabeled", "unconfirmed"})
 
         # dummy key/value so that pyqt does not convert the dict
         # into a QVariantMap while communicating with the Views
@@ -313,7 +326,10 @@ class KeyValueModelItem(ModelItem, MutableMapping):
         if isinstance(item, KeyValueRowModelItem):
             next_row = 0
             for child in self._children:
-                if not isinstance(child, KeyValueRowModelItem) or child.key() > item.key():
+                if (
+                    not isinstance(child, KeyValueRowModelItem)
+                    or child.key() > item.key()
+                ):
                     break
                 next_row += 1
 
@@ -374,43 +390,45 @@ class KeyValueModelItem(ModelItem, MutableMapping):
 
     def getAnnotations(self):
         res = copy.deepcopy(self._dict)
-        if None in res: del res[None]
+        if None in res:
+            del res[None]
         return res
 
     def isUnlabeled(self):
-        return 'unlabeled' in self._dict and self._dict['unlabeled']
+        return "unlabeled" in self._dict and self._dict["unlabeled"]
 
     def setUnlabeled(self, val):
         if val:
-            self._dict['unlabeled'] = val
+            self._dict["unlabeled"] = val
         else:
-            if 'unlabeled' in self._dict:
-                del self['unlabeled']
-                self._emitDataChanged('unlabeled')
+            if "unlabeled" in self._dict:
+                del self["unlabeled"]
+                self._emitDataChanged("unlabeled")
 
     def isUnconfirmed(self):
-        return 'unconfirmed' in self._dict and self._dict['unconfirmed']
+        return "unconfirmed" in self._dict and self._dict["unconfirmed"]
 
     def setUnconfirmed(self, val):
         if val:
-            self._dict['unconfirmed'] = val
+            self._dict["unconfirmed"] = val
         else:
-            if 'unconfirmed' in self._dict:
-                del self['unconfirmed']
-                self._emitDataChanged('unconfirmed')
+            if "unconfirmed" in self._dict:
+                del self["unconfirmed"]
+                self._emitDataChanged("unconfirmed")
 
 
 class FileModelItem(KeyValueModelItem):
     def __init__(self, fileinfo, hidden=None):
-        if not hidden: hidden = ['filename']
+        if not hidden:
+            hidden = ["filename"]
         KeyValueModelItem.__init__(self, hidden=hidden, properties=fileinfo)
 
     def data(self, role=Qt.DisplayRole, column=0):
         if role == Qt.DisplayRole:
             if column == 0:
-                return os.path.basename(self['filename'])
+                return os.path.basename(self["filename"])
             elif column == 1 and self.isUnlabeled():
-                return '[unlabeled]'
+                return "[unlabeled]"
         return ModelItem.data(self, role, column)
 
     def getColor(self):
@@ -420,9 +438,9 @@ class FileModelItem(KeyValueModelItem):
 
     @staticmethod
     def create(fileinfo):
-        if fileinfo['class'] == 'image':
+        if fileinfo["class"] == "image":
             return ImageFileModelItem(fileinfo)
-        elif fileinfo['class'] == 'video':
+        elif fileinfo["class"] == "video":
             return VideoFileModelItem(fileinfo)
 
 
@@ -473,8 +491,11 @@ class ImageFileModelItem(FileModelItem, ImageModelItem):
     def getAnnotations(self):
         self._ensureAllLoaded()
         fi = KeyValueModelItem.getAnnotations(self)
-        fi['annotations'] = [child.getAnnotations() for child in self.children()
-                             if hasattr(child, 'getAnnotations')]
+        fi["annotations"] = [
+            child.getAnnotations()
+            for child in self.children()
+            if hasattr(child, "getAnnotations")
+        ]
         return fi
 
 
@@ -491,7 +512,7 @@ class VideoFileModelItem(FileModelItem):
     def getAnnotations(self):
         self._ensureAllLoaded()
         fi = KeyValueModelItem.getAnnotations(self)
-        fi['frames'] = [child.getAnnotations() for child in self.children()]
+        fi["frames"] = [child.getAnnotations() for child in self.children()]
         return fi
 
 
@@ -504,17 +525,17 @@ class FrameModelItem(ImageModelItem, KeyValueModelItem):
         ImageModelItem.__init__(self, annotations)
 
     def framenum(self):
-        return int(self.get('num', -1))
+        return int(self.get("num", -1))
 
     def timestamp(self):
-        return float(self.get('timestamp', -1))
+        return float(self.get("timestamp", -1))
 
     def data(self, role=Qt.DisplayRole, column=0):
         if role == Qt.DisplayRole:
             if column == 0:
                 return "%d / %.3f" % (self.framenum(), self.timestamp())
             elif column == 1 and self.isUnlabeled():
-                return '[unlabeled]'
+                return "[unlabeled]"
         return ImageModelItem.data(self, role, column)
 
     def getColor(self):
@@ -524,8 +545,11 @@ class FrameModelItem(ImageModelItem, KeyValueModelItem):
 
     def getAnnotations(self):
         fi = KeyValueModelItem.getAnnotations(self)
-        fi['annotations'] = [child.getAnnotations() for child in self.children()
-                             if hasattr(child, 'getAnnotations')]
+        fi["annotations"] = [
+            child.getAnnotations()
+            for child in self.children()
+            if hasattr(child, "getAnnotations")
+        ]
         return fi
 
 
@@ -538,12 +562,14 @@ class AnnotationModelItem(KeyValueModelItem):
         if role == Qt.DisplayRole:
             if column == 0:
                 try:
-                    return self['class']
+                    return self["class"]
                 except KeyError:
-                    LOG.error('Could not find key class in annotation item. Please check your label file.')
-                    return '<error - no class set>'
+                    LOG.error(
+                        "Could not find key class in annotation item. Please check your label file."
+                    )
+                    return "<error - no class set>"
             elif column == 1 and self.isUnconfirmed():
-                return '[unconfirmed]'
+                return "[unconfirmed]"
             else:
                 return ""
         elif role == DataRole:
@@ -596,7 +622,7 @@ class KeyValueRowModelItem(ModelItem):
 
 class AnnotationModel(QAbstractItemModel):
     # signals
-    dirtyChanged = pyqtSignal(bool, name='dirtyChanged')
+    dirtyChanged = pyqtSignal(bool, name="dirtyChanged")
 
     def __init__(self, annotations, parent=None):
         QAbstractItemModel.__init__(self, parent)
@@ -606,7 +632,7 @@ class AnnotationModel(QAbstractItemModel):
         self._dirty = False
         self._root = RootModelItem(self, annotations)
         diff = time.time() - start
-        LOG.info("Created AnnotationModel in %.2fs" % (diff, ))
+        LOG.info("Created AnnotationModel in %.2fs" % (diff,))
 
         self.dataChanged.connect(self.onDataChanged)
         self.rowsInserted.connect(self.onDataChanged)
@@ -746,10 +772,12 @@ class AnnotationModel(QAbstractItemModel):
 # proxy model
 #######################################################################################
 
+
 class AnnotationSortFilterProxyModel(QSortFilterProxyModel):
     """Adds sorting and filtering support to the AnnotationModel without basically
     any implementation effort.  Special functions such as ``insertPoint()`` just
     call the source models respective functions."""
+
     def __init__(self, parent=None):
         super(AnnotationSortFilterProxyModel, self).__init__(parent)
 
@@ -780,6 +808,7 @@ class AnnotationSortFilterProxyModel(QSortFilterProxyModel):
 # view
 #######################################################################################
 
+
 class AnnotationTreeView(QTreeView):
     selectedItemsChanged = pyqtSignal(object)
 
@@ -791,7 +820,7 @@ class AnnotationTreeView(QTreeView):
         self.setSelectionBehavior(QTreeView.SelectRows)
         self.setAllColumnsShowFocus(True)
         self.setAlternatingRowColors(True)
-        #self.setEditTriggers(QAbstractItemView.SelectedClicked)
+        # self.setEditTriggers(QAbstractItemView.SelectedClicked)
         self.setSortingEnabled(True)
         self.setAnimated(True)
         self.expanded.connect(self.onExpanded)
@@ -812,16 +841,22 @@ class AnnotationTreeView(QTreeView):
         self.resizeColumns()
 
     def setSelectedItems(self, items):
-        #block = self.blockSignals(True)
+        # block = self.blockSignals(True)
         sel = QItemSelection()
         for item in items:
-            sel.merge(QItemSelection(item.index(), item.index(1)), QItemSelectionModel.SelectCurrent)
+            sel.merge(
+                QItemSelection(item.index(), item.index(1)),
+                QItemSelectionModel.SelectCurrent,
+            )
         if set(sel) != set(self.selectionModel().selection()):
             self.selectionModel().clear()
             self.selectionModel().select(sel, QItemSelectionModel.Select)
-        #self.blockSignals(block)
+        # self.blockSignals(block)
 
     def selectionChanged(self, selected, deselected):
-        items = [ self.model().itemFromIndex(index) for index in self.selectionModel().selectedIndexes()]
+        items = [
+            self.model().itemFromIndex(index)
+            for index in self.selectionModel().selectedIndexes()
+        ]
         self.selectedItemsChanged.emit(items)
         QTreeView.selectionChanged(self, selected, deselected)

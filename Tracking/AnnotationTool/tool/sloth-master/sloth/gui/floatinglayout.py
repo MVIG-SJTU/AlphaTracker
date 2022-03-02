@@ -1,5 +1,5 @@
 from PyQt4.QtCore import Qt, QRect, QSize, QPoint
-from PyQt4.QtGui  import QLayout, QSizePolicy, QWidgetItem
+from PyQt4.QtGui import QLayout, QSizePolicy, QWidgetItem
 
 
 class FloatingLayout(QLayout):
@@ -35,8 +35,12 @@ class FloatingLayout(QLayout):
 
         for item in self._items:
             wid = item.widget()
-            spaceX = wid.style().layoutSpacing(QSizePolicy.PushButton, QSizePolicy.PushButton, Qt.Horizontal)
-            spaceY = wid.style().layoutSpacing(QSizePolicy.PushButton, QSizePolicy.PushButton, Qt.Vertical)
+            spaceX = wid.style().layoutSpacing(
+                QSizePolicy.PushButton, QSizePolicy.PushButton, Qt.Horizontal
+            )
+            spaceY = wid.style().layoutSpacing(
+                QSizePolicy.PushButton, QSizePolicy.PushButton, Qt.Vertical
+            )
 
             sz_hint = item.sizeHint()
             if x != r.x() and x + sz_hint.width() >= r.right():
@@ -102,4 +106,3 @@ class FloatingLayout(QLayout):
 
     def sizeHint(self):
         return self.minimumSize()
-

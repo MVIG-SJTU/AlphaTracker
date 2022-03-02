@@ -3,7 +3,7 @@
 # Written by Jiefeng Li (jeff.lee.sjtu@gmail.com)
 # -----------------------------------------------------
 
-from utils.img import (load_image, drawGaussian, cropBox, transformBox, flip, shuffleLR)
+from utils.img import load_image, drawGaussian, cropBox, transformBox, flip, shuffleLR
 import torch
 import numpy as np
 import random
@@ -15,7 +15,17 @@ def rnd(x):
     return max(-2 * x, min(2 * x, np.random.randn(1)[0] * x))
 
 
-def generateSampleBox(img_path, bndbox, part, nJoints, imgset, scale_factor, dataset, train=True, nJoints_coco=17):
+def generateSampleBox(
+    img_path,
+    bndbox,
+    part,
+    nJoints,
+    imgset,
+    scale_factor,
+    dataset,
+    train=True,
+    nJoints_coco=17,
+):
 
     img = load_image(img_path)
     if train:
@@ -45,7 +55,7 @@ def generateSampleBox(img_path, bndbox, part, nJoints, imgset, scale_factor, dat
         PatchScale = random.uniform(0, 1)
         if PatchScale > 0.85:
             ratio = ht / width
-            if (width < ht):
+            if width < ht:
                 patchWidth = PatchScale * width
                 patchHt = patchWidth * ratio
             else:
@@ -58,13 +68,24 @@ def generateSampleBox(img_path, bndbox, part, nJoints, imgset, scale_factor, dat
             ymax = ymin + patchHt + 1
         else:
             xmin = max(
-                1, min(upLeft[0] + np.random.normal(-0.0142, 0.1158) * width, imgwidth - 3))
+                1,
+                min(
+                    upLeft[0] + np.random.normal(-0.0142, 0.1158) * width, imgwidth - 3
+                ),
+            )
             ymin = max(
-                1, min(upLeft[1] + np.random.normal(0.0043, 0.068) * ht, imght - 3))
-            xmax = min(max(
-                xmin + 2, bottomRight[0] + np.random.normal(0.0154, 0.1337) * width), imgwidth - 3)
+                1, min(upLeft[1] + np.random.normal(0.0043, 0.068) * ht, imght - 3)
+            )
+            xmax = min(
+                max(
+                    xmin + 2, bottomRight[0] + np.random.normal(0.0154, 0.1337) * width
+                ),
+                imgwidth - 3,
+            )
             ymax = min(
-                max(ymin + 2, bottomRight[1] + np.random.normal(-0.0013, 0.0711) * ht), imght - 3)
+                max(ymin + 2, bottomRight[1] + np.random.normal(-0.0013, 0.0711) * ht),
+                imght - 3,
+            )
 
         upLeft[0] = xmin
         upLeft[1] = ymin
@@ -73,10 +94,15 @@ def generateSampleBox(img_path, bndbox, part, nJoints, imgset, scale_factor, dat
 
     # Counting Joints number
     jointNum = 0
-    if imgset == 'coco':
+    if imgset == "coco":
         for i in range(nJoints_coco):
-            if part[i][0] > 0 and part[i][0] > upLeft[0] and part[i][1] > upLeft[1] \
-               and part[i][0] < bottomRight[0] and part[i][1] < bottomRight[1]:
+            if (
+                part[i][0] > 0
+                and part[i][0] > upLeft[0]
+                and part[i][1] > upLeft[1]
+                and part[i][0] < bottomRight[0]
+                and part[i][1] < bottomRight[1]
+            ):
                 jointNum += 1
 
     # Doing Random Crop
@@ -115,12 +141,24 @@ def generateSampleBox(img_path, bndbox, part, nJoints, imgset, scale_factor, dat
     out = torch.zeros(nJoints, outputResH, outputResW)
     setMask = torch.zeros(nJoints, outputResH, outputResW)
     # Draw Label
-    if imgset == 'coco':
+    if imgset == "coco":
         for i in range(nJoints_coco):
-            if part[i][0] > 0 and part[i][0] > upLeft[0] and part[i][1] > upLeft[1] \
-               and part[i][0] < bottomRight[0] and part[i][1] < bottomRight[1]:
+            if (
+                part[i][0] > 0
+                and part[i][0] > upLeft[0]
+                and part[i][1] > upLeft[1]
+                and part[i][0] < bottomRight[0]
+                and part[i][1] < bottomRight[1]
+            ):
                 hm_part = transformBox(
-                    part[i], upLeft, bottomRight, inputResH, inputResW, outputResH, outputResW)
+                    part[i],
+                    upLeft,
+                    bottomRight,
+                    inputResH,
+                    inputResW,
+                    outputResH,
+                    outputResW,
+                )
 
                 out[i] = drawGaussian(out[i], hm_part, opt.hmGauss)
 
