@@ -14,37 +14,39 @@ from tqdm import tqdm
 import contour_utils
 import setting
 
+
 def create_dataframe_faces():
     # read all mask images， and construct into a dataframe
     faces = pd.DataFrame([])
     i = 0
     arg = setting.args_class()
 
-    for video_path,json_path,contour_path in zip(arg.videodir,arg.tracked_json,arg.contdir):
+    for video_path, json_path, contour_path in zip(
+        arg.videodir, arg.tracked_json, arg.contdir
+    ):
         img_dict = contour_path
         data = contour_utils.load_json(json_path)
 
         for img_name in tqdm(os.listdir(img_dict)):
 
-            if not(img_name[-1] == 'g'):
-                print(img_name+' is not used')
+            if not (img_name[-1] == "g"):
+                print(img_name + " is not used")
                 continue
 
-            if np.random.randn()>0.8:
-                print('add %d th image '%(len(faces+1)))
-                frame = plt.imread(img_dict + '/' + img_name)
-                frame = np.asarray(frame[:,:,0],dtype = 'uint8')
+            if np.random.randn() > 0.8:
+                print("add %d th image " % (len(faces + 1)))
+                frame = plt.imread(img_dict + "/" + img_name)
+                frame = np.asarray(frame[:, :, 0], dtype="uint8")
                 frame[frame == 255] = 1
 
-                face = pd.Series(frame.flatten(),name = img_name)
+                face = pd.Series(frame.flatten(), name=img_name)
 
                 faces = faces.append(face)
                 i += 1
-            if len(faces)>2500:
+            if len(faces) > 2500:
                 break
-        if len(faces)>2500:
+        if len(faces) > 2500:
             break
-
 
     # ## Visualization
     # width, height = frame.shape
@@ -58,13 +60,11 @@ def create_dataframe_faces():
     # plt.savefig('love.png')
 
     import pickle
-    print('writing file...')
-    with open('./faces.pckl', 'wb') as f:
+
+    print("writing file...")
+    with open("./faces.pckl", "wb") as f:
         pickle.dump(faces, f)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     create_dataframe_faces()
-
-
-

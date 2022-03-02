@@ -15,13 +15,18 @@ class Config:
         try:
             oldpath = sys.path
             module_path = os.path.abspath(module_path)
-            if module_path.endswith('.py'):
+            if module_path.endswith(".py"):
                 module_path = module_path[:-3]
             module_dir, module_name = os.path.split(module_path)
-            sys.path = [module_dir, ] + sys.path
+            sys.path = [
+                module_dir,
+            ] + sys.path
             mod = importlib.import_module(module_name)
         except ImportError as e:
-            raise ImportError("Could not import configuration '%s' (Is it on sys.path?): %s" % (module_path, e))
+            raise ImportError(
+                "Could not import configuration '%s' (Is it on sys.path?): %s"
+                % (module_path, e)
+            )
         finally:
             sys.path = oldpath
 
@@ -30,5 +35,5 @@ class Config:
                 setting_value = getattr(mod, setting)
                 setattr(self, setting, setting_value)
 
-config = Config()
 
+config = Config()

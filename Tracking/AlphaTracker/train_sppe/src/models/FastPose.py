@@ -22,14 +22,15 @@ class FastPose_SE(nn.Module):
     def __init__(self):
         super(FastPose_SE, self).__init__()
 
-        self.preact = SEResnet('resnet101')
+        self.preact = SEResnet("resnet101")
 
         self.suffle1 = nn.PixelShuffle(2)
         self.duc1 = DUC(512, 1024, upscale_factor=2)
         self.duc2 = DUC(256, 512, upscale_factor=2)
 
         self.conv_out = nn.Conv2d(
-            self.conv_dim, opt.nClasses, kernel_size=3, stride=1, padding=1)
+            self.conv_dim, opt.nClasses, kernel_size=3, stride=1, padding=1
+        )
 
     def forward(self, x):
         # print(self.duc1)

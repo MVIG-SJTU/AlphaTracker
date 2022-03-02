@@ -7,7 +7,14 @@ LOG = logging.getLogger(__name__)
 
 
 class CopyAnnotationsPlugin(QObject):
-    def __init__(self, labeltool, class_filter=None, frame_range=1, overlap_threshold=None, prefix=''):
+    def __init__(
+        self,
+        labeltool,
+        class_filter=None,
+        frame_range=1,
+        overlap_threshold=None,
+        prefix="",
+    ):
         QObject.__init__(self)
 
         self._class_filter = class_filter
@@ -38,12 +45,14 @@ class CopyAnnotationsPlugin(QObject):
                             r2 = self.getRect(curr_ann)
                             if r2 is not None:
                                 o = self.overlap(r1, r2)
-                                LOG.debug("overlap between %s and %s: %f", str(r1), str(r2), o)
+                                LOG.debug(
+                                    "overlap between %s and %s: %f", str(r1), str(r2), o
+                                )
                                 if o > self._overlap_threshold:
                                     cont = True
                                     break
                         if cont:
-                            continue # do not copy
+                            continue  # do not copy
 
                 # copy the annotation
                 current.addAnnotation(annotation)
@@ -53,16 +62,16 @@ class CopyAnnotationsPlugin(QObject):
 
     def getAnnotationsFiltered(self, image_item):
         annotations = []
-        for annotation in image_item.getAnnotations()['annotations']:
+        for annotation in image_item.getAnnotations()["annotations"]:
             # check class filter
             if self._class_filter is not None:
-                if annotation.get('class', None) not in self._class_filter:
+                if annotation.get("class", None) not in self._class_filter:
                     continue  # do not copy
             annotations.append(annotation)
         return annotations
 
     def getRect(self, annotation):
-        keys = ['x', 'y', 'width', 'height']
+        keys = ["x", "y", "width", "height"]
         for key in keys:
             if not self._prefix + key in annotation:
                 return None
@@ -81,7 +90,7 @@ class CopyAnnotationsPlugin(QObject):
         return (x, y, w, h)
 
     def area(self, r):
-        return r[2]*r[3]
+        return r[2] * r[3]
 
     def action(self):
         return self._sc
@@ -95,6 +104,7 @@ class PolygonEnumeratorPlugin(QObject):
 
         # Decorate the paint() method with our enumerating paint:
         from sloth.items import PolygonItem
+
         oldpaint = PolygonItem.paint
 
         def paint(self, painter, option, widget=None):
@@ -103,6 +113,7 @@ class PolygonEnumeratorPlugin(QObject):
                 painter.drawText(p, str(i))
 
         import functools
+
         functools.update_wrapper(paint, oldpaint)
 
         PolygonItem.paint = paint

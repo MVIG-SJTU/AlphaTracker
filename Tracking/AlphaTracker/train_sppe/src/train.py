@@ -48,16 +48,14 @@ def train(train_loader, m, criterion, optimizer, writer):
 
         opt.trainIters += 1
         # Tensorboard
-        writer.add_scalar(
-            'Train/Loss', lossLogger.avg, opt.trainIters)
-        writer.add_scalar(
-            'Train/Acc', accLogger.avg, opt.trainIters)
+        writer.add_scalar("Train/Loss", lossLogger.avg, opt.trainIters)
+        writer.add_scalar("Train/Acc", accLogger.avg, opt.trainIters)
 
         # TQDM
         train_loader_desc.set_description(
-            'loss: {loss:.8f} | acc: {acc:.2f}'.format(
-                loss=lossLogger.avg,
-                acc=accLogger.avg * 100)
+            "loss: {loss:.8f} | acc: {acc:.2f}".format(
+                loss=lossLogger.avg, acc=accLogger.avg * 100
+            )
         )
 
     train_loader_desc.close()
@@ -83,8 +81,9 @@ def valid(val_loader, m, criterion, optimizer, writer):
             loss = criterion(out.mul(setMask), labels)
 
             flip_out = m(flip_v(inps, cuda=True))
-            flip_out = flip_v(shuffleLR_v(
-                flip_out, val_loader.dataset, cuda=True), cuda=True)
+            flip_out = flip_v(
+                shuffleLR_v(flip_out, val_loader.dataset, cuda=True), cuda=True
+            )
 
             out = (flip_out.cuda() + out) / 2
 
@@ -96,15 +95,13 @@ def valid(val_loader, m, criterion, optimizer, writer):
         opt.valIters += 1
 
         # Tensorboard
-        writer.add_scalar(
-            'Valid/Loss', lossLogger.avg, opt.valIters)
-        writer.add_scalar(
-            'Valid/Acc', accLogger.avg, opt.valIters)
+        writer.add_scalar("Valid/Loss", lossLogger.avg, opt.valIters)
+        writer.add_scalar("Valid/Acc", accLogger.avg, opt.valIters)
 
         val_loader_desc.set_description(
-            'loss: {loss:.8f} | acc: {acc:.2f}'.format(
-                loss=lossLogger.avg,
-                acc=accLogger.avg * 100)
+            "loss: {loss:.8f} | acc: {acc:.2f}".format(
+                loss=lossLogger.avg, acc=accLogger.avg * 100
+            )
         )
 
     val_loader_desc.close()
@@ -117,15 +114,15 @@ def main():
     # Model Initialize
     m = createModel().cuda()
     if opt.loadModel:
-        print('Loading Model from {}'.format(opt.loadModel))
+        print("Loading Model from {}".format(opt.loadModel))
         current_model_weight = m.state_dict()
         weight_save = torch.load(opt.loadModel)
         weight_save_changed = {}
         for k in weight_save:
-            if 'conv_out.weight' in k or 'conv_out.bias' in k:
-                print(k,'not used')
+            if "conv_out.weight" in k or "conv_out.bias" in k:
+                print(k, "not used")
                 continue
-            weight_save_changed[k]= weight_save[k]
+            weight_save_changed[k] = weight_save[k]
         current_model_weight.update(weight_save_changed)
         m.load_state_dict(current_model_weight)
         if not os.path.exists("../exp/{}/{}".format(opt.dataset, opt.expID)):
@@ -136,7 +133,7 @@ def main():
                 os.mkdir("../exp/{}".format(opt.dataset))
                 os.mkdir("../exp/{}/{}".format(opt.dataset, opt.expID))
     else:
-        print('Create new model')
+        print("Create new model")
         if not os.path.exists("../exp/{}/{}".format(opt.dataset, opt.expID)):
             try:
                 os.mkdir("../exp/{}/{}".format(opt.dataset, opt.expID))
@@ -147,58 +144,83 @@ def main():
 
     criterion = torch.nn.MSELoss().cuda()
 
-    if opt.optMethod == 'rmsprop':
+    if opt.optMethod == "rmsprop":
         optimizer = torch.optim.RMSprop(m.parameters(), lr=opt.LR)
-    elif opt.optMethod == 'adam':
+    elif opt.optMethod == "adam":
         optimizer = torch.optim.Adam(m.parameters(), lr=opt.LR)
     else:
         raise Exception
 
-    writer = SummaryWriter('.tensorboard/{}/{}'.format(opt.dataset, opt.expID))
+    writer = SummaryWriter(".tensorboard/{}/{}".format(opt.dataset, opt.expID))
 
     # Prepare Dataset
-    if opt.dataset == 'coco':
-        train_dataset = coco.Mscoco(train=True, img_folder=opt.img_folder_train, annot_file=opt.annot_file_train, nJoints=opt.nClasses)
-        val_dataset = coco.Mscoco(train=False, img_folder=opt.img_folder_val, annot_file=opt.annot_file_val, nJoints=opt.nClasses)
+    if opt.dataset == "coco":
+        train_dataset = coco.Mscoco(
+            train=True,
+            img_folder=opt.img_folder_train,
+            annot_file=opt.annot_file_train,
+            nJoints=opt.nClasses,
+        )
+        val_dataset = coco.Mscoco(
+            train=False,
+            img_folder=opt.img_folder_val,
+            annot_file=opt.annot_file_val,
+            nJoints=opt.nClasses,
+        )
 
     train_loader = torch.utils.data.DataLoader(
-        train_dataset, batch_size=opt.trainBatch, shuffle=True, num_workers=opt.nThreads, pin_memory=True)
-    print('train batch', opt.trainBatch)
+        train_dataset,
+        batch_size=opt.trainBatch,
+        shuffle=True,
+        num_workers=opt.nThreads,
+        pin_memory=True,
+    )
+    print("train batch", opt.trainBatch)
     val_loader = torch.utils.data.DataLoader(
-        val_dataset, batch_size=opt.validBatch, shuffle=False, num_workers=opt.nThreads, pin_memory=True)
+        val_dataset,
+        batch_size=opt.validBatch,
+        shuffle=False,
+        num_workers=opt.nThreads,
+        pin_memory=True,
+    )
 
     # Model Transfer
     m = DataParallel(m).cuda()
 
     # Start Training
-    for i in range(opt.nEpochs+1):
+    for i in range(opt.nEpochs + 1):
         opt.epoch = i
-        print('############# Starting Epoch {} #############'.format(opt.epoch))
+        print("############# Starting Epoch {} #############".format(opt.epoch))
 
         loss, acc = train(train_loader, m, criterion, optimizer, writer)
 
-        print('Train-{idx:d} epoch | loss:{loss:.8f} | acc:{acc:.4f}'.format(
-            idx=opt.epoch,
-            loss=loss,
-            acc=acc
-        ))
+        print(
+            "Train-{idx:d} epoch | loss:{loss:.8f} | acc:{acc:.4f}".format(
+                idx=opt.epoch, loss=loss, acc=acc
+            )
+        )
         opt.acc = acc
         opt.loss = loss
         m_dev = m.module
 
         if (i % opt.snapshot == 0 and i != 0) or i == opt.nEpochs:
-            torch.save(m_dev.state_dict(), '../exp/{}/{}/model_{}.pkl'.format(opt.dataset, opt.expID, opt.epoch))
-            torch.save(opt, '../exp/{}/{}/option.pkl'.format(opt.dataset, opt.expID, opt.epoch))
+            torch.save(
+                m_dev.state_dict(),
+                "../exp/{}/{}/model_{}.pkl".format(opt.dataset, opt.expID, opt.epoch),
+            )
+            torch.save(
+                opt, "../exp/{}/{}/option.pkl".format(opt.dataset, opt.expID, opt.epoch)
+            )
 
         loss, acc = valid(val_loader, m, criterion, optimizer, writer)
-        print('Valid-{idx:d} epoch | loss:{loss:.8f} | acc:{acc:.4f}'.format(
-            idx=i,
-            loss=loss,
-            acc=acc
-        ))
+        print(
+            "Valid-{idx:d} epoch | loss:{loss:.8f} | acc:{acc:.4f}".format(
+                idx=i, loss=loss, acc=acc
+            )
+        )
 
     writer.close()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

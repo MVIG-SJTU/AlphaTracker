@@ -10,8 +10,9 @@ class Bottleneck(nn.Module):
         super(Bottleneck, self).__init__()
         self.conv1 = nn.Conv2d(inplanes, planes, kernel_size=1, bias=False)
         self.bn1 = nn.BatchNorm2d(planes)
-        self.conv2 = nn.Conv2d(planes, planes, kernel_size=3, stride=stride,
-                               padding=1, bias=False)
+        self.conv2 = nn.Conv2d(
+            planes, planes, kernel_size=3, stride=stride, padding=1, bias=False
+        )
         self.bn2 = nn.BatchNorm2d(planes)
         self.conv3 = nn.Conv2d(planes, planes * 4, kernel_size=1, bias=False)
         self.bn3 = nn.BatchNorm2d(planes * 4)
@@ -43,7 +44,7 @@ class Bottleneck(nn.Module):
 
 
 class SEResnet(nn.Module):
-    """ SEResnet """
+    """SEResnet"""
 
     def __init__(self, architecture):
         super(SEResnet, self).__init__()
@@ -52,20 +53,16 @@ class SEResnet(nn.Module):
         self.layers = [3, 4, {"resnet50": 6, "resnet101": 23}[architecture], 3]
         self.block = Bottleneck
 
-        self.conv1 = nn.Conv2d(3, 64, kernel_size=7,
-                               stride=2, padding=3, bias=False)
+        self.conv1 = nn.Conv2d(3, 64, kernel_size=7, stride=2, padding=3, bias=False)
         self.bn1 = nn.BatchNorm2d(64, eps=1e-5, momentum=0.01, affine=True)
         self.relu = nn.ReLU(inplace=True)
         self.maxpool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
 
         self.layer1 = self.make_layer(self.block, 64, self.layers[0])
-        self.layer2 = self.make_layer(
-            self.block, 128, self.layers[1], stride=2)
-        self.layer3 = self.make_layer(
-            self.block, 256, self.layers[2], stride=2)
+        self.layer2 = self.make_layer(self.block, 128, self.layers[1], stride=2)
+        self.layer3 = self.make_layer(self.block, 256, self.layers[2], stride=2)
 
-        self.layer4 = self.make_layer(
-            self.block, 512, self.layers[3], stride=2)
+        self.layer4 = self.make_layer(self.block, 512, self.layers[3], stride=2)
 
     def forward(self, x):
         x = self.maxpool(self.relu(self.bn1(self.conv1(x))))  # 64 * h/4 * w/4
@@ -82,14 +79,21 @@ class SEResnet(nn.Module):
         downsample = None
         if stride != 1 or self.inplanes != planes * block.expansion:
             downsample = nn.Sequential(
-                nn.Conv2d(self.inplanes, planes * block.expansion,
-                          kernel_size=1, stride=stride, bias=False),
+                nn.Conv2d(
+                    self.inplanes,
+                    planes * block.expansion,
+                    kernel_size=1,
+                    stride=stride,
+                    bias=False,
+                ),
                 nn.BatchNorm2d(planes * block.expansion),
             )
 
         layers = []
         if downsample is not None:
-            layers.append(block(self.inplanes, planes, stride, downsample, reduction=True))
+            layers.append(
+                block(self.inplanes, planes, stride, downsample, reduction=True)
+            )
         else:
             layers.append(block(self.inplanes, planes, stride, downsample))
         self.inplanes = planes * block.expansion

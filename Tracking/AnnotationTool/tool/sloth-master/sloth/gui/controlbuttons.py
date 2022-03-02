@@ -3,10 +3,9 @@ from PyQt4.QtCore import *
 
 
 class Label(QLabel):
-    
     def __init__(self, *args, **kwargs):
         QLabel.__init__(self, *args, **kwargs)
-        
+
     def mouseReleaseEvent(self, ev):
         menu = QMenu(self)
         menu.addActions(self.actions())
@@ -35,7 +34,7 @@ class ControlButtonWidget(QWidget):
         self._label.setText("<center><b>%d / %f</b></center>" % (num, timestamp))
 
     def setFilename(self, filename):
-        self._label.setText("<center><b>%s</b></center>" % (filename, ))
+        self._label.setText("<center><b>%s</b></center>" % (filename,))
 
     @pyqtSlot()
     def copyFilename(self):

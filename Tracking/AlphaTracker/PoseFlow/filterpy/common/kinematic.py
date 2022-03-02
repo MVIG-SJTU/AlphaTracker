@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-#pylint: disable=invalid-name
+# pylint: disable=invalid-name
 
 """Copyright 2018 Roger R Labbe Jr.
 
@@ -15,8 +15,7 @@ https://github.com/rlabbe/Kalman-and-Bayesian-Filters-in-Python
 This is licensed under an MIT license. See the readme.MD file
 for more information.
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import math
 import numpy as np
@@ -29,19 +28,16 @@ def kinematic_state_transition(order, dt):
     step `dt`.
     """
 
-    if not(order >= 0 and int(order) == order):
+    if not (order >= 0 and int(order) == order):
         raise ValueError("order must be an int >= 0")
 
     # hard code common cases for computational efficiency
     if order == 0:
-        return np.array([[1.]])
+        return np.array([[1.0]])
     if order == 1:
-        return np.array([[1., dt],
-                         [0., 1.]])
+        return np.array([[1.0, dt], [0.0, 1.0]])
     if order == 2:
-        return np.array([[1., dt, 0.5*dt*dt],
-                         [0., 1., dt],
-                         [0., 0., 1.]])
+        return np.array([[1.0, dt, 0.5 * dt * dt], [0.0, 1.0, dt], [0.0, 0.0, 1.0]])
 
     # grind it out computationally....
     N = order + 1
@@ -58,7 +54,7 @@ def kinematic_state_transition(order, dt):
     return F
 
 
-def kinematic_kf(dim, order, dt=1., dim_z=1, order_by_dim=True):
+def kinematic_kf(dim, order, dt=1.0, dim_z=1, order_by_dim=True):
     """
     Returns a KalmanFilter using newtonian kinematics of arbitrary order
     for any number of dimensions. For example, a constant velocity filter
@@ -137,6 +133,7 @@ def kinematic_kf(dim, order, dt=1., dim_z=1, order_by_dim=True):
     """
 
     from filterpy.kalman import KalmanFilter
+
     if dim < 1:
         raise ValueError("dim must be >= 1")
     if order < 0:
@@ -158,21 +155,21 @@ def kinematic_kf(dim, order, dt=1., dim_z=1, order_by_dim=True):
             f = np.eye(dim) * x
 
             ix, iy = (i // dim_x) * dim, (i % dim_x) * dim
-            kf.F[ix:ix+dim, iy:iy+dim] = f
+            kf.F[ix : ix + dim, iy : iy + dim] = f
 
     if order_by_dim:
         for i in range(dim):
-            kf.H[i, i * dim_x] = 1.
+            kf.H[i, i * dim_x] = 1.0
     else:
         for i in range(dim):
-            kf.H[i, i] = 1.
+            kf.H[i, i] = 1.0
 
     return kf
 
 
 if __name__ == "__main__":
-    _kf = kinematic_kf(2, 1, dt=3., order_by_dim=False)
+    _kf = kinematic_kf(2, 1, dt=3.0, order_by_dim=False)
     print(_kf.F)
-    print('\n\n')
-    _kf = kinematic_kf(3, 1, dt=3., order_by_dim=False)
+    print("\n\n")
+    _kf = kinematic_kf(3, 1, dt=3.0, order_by_dim=False)
     print(_kf.F)

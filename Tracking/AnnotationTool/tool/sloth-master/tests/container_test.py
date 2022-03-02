@@ -6,12 +6,12 @@ class MockupContainer:
 
 
 def someFileAnnotations(i):
-    annotations = [{'type': 'rect', 'x': 10 * i, 'y': '20', 'w': '40', 'h': '60'},
-                   {'type': 'rect', 'x': '80', 'y': 20 * i, 'w': '40', 'h': '60'}]
+    annotations = [
+        {"type": "rect", "x": 10 * i, "y": "20", "w": "40", "h": "60"},
+        {"type": "rect", "x": "80", "y": 20 * i, "w": "40", "h": "60"},
+    ]
     for k in range(i):
-        annotations.append({'type': 'point',
-                            'x': 30 * k,
-                            'y': 30 * k})
+        annotations.append({"type": "point", "x": 30 * k, "y": 30 * k})
     return annotations
 
 
@@ -19,9 +19,9 @@ def someAnnotations():
     annotations = []
     for i in range(5):
         ann = {
-            'filename': 'file%d.png' % i,
-            'type': 'image',
-            'annotations': someFileAnnotations(i)
+            "filename": "file%d.png" % i,
+            "type": "image",
+            "annotations": someFileAnnotations(i),
         }
         annotations.append(ann)
     return annotations
@@ -42,9 +42,9 @@ def common_container_test(filename, container):
 
 
 def test_import_callable():
-    containers = (('*', 'container_test.MockupContainer'),)
+    containers = (("*", "container_test.MockupContainer"),)
     factory = AnnotationContainerFactory(containers)
-    item = factory.create('test')
+    item = factory.create("test")
     assert isinstance(item, MockupContainer)
 
 

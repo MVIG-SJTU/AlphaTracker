@@ -8,10 +8,16 @@ from opt import opt
 
 
 class Mscoco(data.Dataset):
-    def __init__(self, train=True, sigma=1,
-                 scale_factor=0.25, rot_factor=30, label_type='Gaussian'):
-        self.img_folder = '../data/'    # root image folders
-        self.is_train = train           # training set or test set
+    def __init__(
+        self,
+        train=True,
+        sigma=1,
+        scale_factor=0.25,
+        rot_factor=30,
+        label_type="Gaussian",
+    ):
+        self.img_folder = "../data/"  # root image folders
+        self.is_train = train  # training set or test set
         self.inputResH = 320
         self.inputResW = 256
         self.outputResH = 80
@@ -25,44 +31,82 @@ class Mscoco(data.Dataset):
         self.nJoints_mpii = 16
         self.nJoints = 33
 
-        self.accIdxs = (1, 2, 3, 4, 5, 6, 7, 8,             # COCO
-                        9, 10, 11, 12, 13, 14, 15, 16, 17,
-                        18, 19, 20, 21, 22, 23,             # MPII
-                        28, 29, 32, 33)
+        self.accIdxs = (
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,  # COCO
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23,  # MPII
+            28,
+            29,
+            32,
+            33,
+        )
 
-        self.flipRef = ((2, 3), (4, 5), (6, 7),             # COCO
-                        (8, 9), (10, 11), (12, 13),
-                        (14, 15), (16, 17),
-                        (18, 23), (19, 22), (20, 21),       # MPII
-                        (28, 33), (29, 32), (30, 31))
+        self.flipRef = (
+            (2, 3),
+            (4, 5),
+            (6, 7),  # COCO
+            (8, 9),
+            (10, 11),
+            (12, 13),
+            (14, 15),
+            (16, 17),
+            (18, 23),
+            (19, 22),
+            (20, 21),  # MPII
+            (28, 33),
+            (29, 32),
+            (30, 31),
+        )
 
-        '''
+        """
         Create train/val split
-        '''
+        """
         # COCO
-        with h5py.File('../data/coco/annot_clean.h5', 'r') as annot:
+        with h5py.File("../data/coco/annot_clean.h5", "r") as annot:
             # train
-            self.imgname_coco_train = annot['imgname'][:-5887]
-            self.bndbox_coco_train = annot['bndbox'][:-5887]
-            self.part_coco_train = annot['part'][:-5887]
+            self.imgname_coco_train = annot["imgname"][:-5887]
+            self.bndbox_coco_train = annot["bndbox"][:-5887]
+            self.part_coco_train = annot["part"][:-5887]
             # val
-            self.imgname_coco_val = annot['imgname'][-5887:]
-            self.bndbox_coco_val = annot['bndbox'][-5887:]
-            self.part_coco_val = annot['part'][-5887:]
+            self.imgname_coco_val = annot["imgname"][-5887:]
+            self.bndbox_coco_val = annot["bndbox"][-5887:]
+            self.part_coco_val = annot["part"][-5887:]
         # MPII
-        with h5py.File('../data/mpii/annot_mpii.h5', 'r') as annot:
+        with h5py.File("../data/mpii/annot_mpii.h5", "r") as annot:
             # train
-            self.imgname_mpii_train = annot['imgname'][:-1358]
-            self.bndbox_mpii_train = annot['bndbox'][:-1358]
-            self.part_mpii_train = annot['part'][:-1358]
+            self.imgname_mpii_train = annot["imgname"][:-1358]
+            self.bndbox_mpii_train = annot["bndbox"][:-1358]
+            self.part_mpii_train = annot["part"][:-1358]
             # val
-            self.imgname_mpii_val = annot['imgname'][-1358:]
-            self.bndbox_mpii_val = annot['bndbox'][-1358:]
-            self.part_mpii_val = annot['part'][-1358:]
+            self.imgname_mpii_val = annot["imgname"][-1358:]
+            self.bndbox_mpii_val = annot["bndbox"][-1358:]
+            self.part_mpii_val = annot["part"][-1358:]
 
         self.size_coco_train = self.imgname_coco_train.shape[0]
         self.size_coco_val = self.imgname_coco_val.shape[0]
-        self.size_train = self.imgname_coco_train.shape[0] + self.imgname_mpii_train.shape[0]
+        self.size_train = (
+            self.imgname_coco_train.shape[0] + self.imgname_mpii_train.shape[0]
+        )
         self.size_val = self.imgname_coco_val.shape[0] + self.imgname_mpii_val.shape[0]
         self.train, self.valid = [], []
 
@@ -73,32 +117,35 @@ class Mscoco(data.Dataset):
             part = self.part_coco_train[index]
             bndbox = self.bndbox_coco_train[index]
             imgname = self.imgname_coco_train[index]
-            imgset = 'coco'
+            imgset = "coco"
         elif self.is_train:  # MPII
             part = self.part_mpii_train[index - self.size_coco_train]
             bndbox = self.bndbox_mpii_train[index - self.size_coco_train]
             imgname = self.imgname_mpii_train[index - self.size_coco_train]
-            imgset = 'mpii'
+            imgset = "mpii"
         elif index < self.size_coco_val:
             part = self.part_coco_val[index]
             bndbox = self.bndbox_coco_val[index]
             imgname = self.imgname_coco_val[index]
-            imgset = 'coco'
+            imgset = "coco"
         else:
             part = self.part_mpii_val[index - self.size_coco_val]
             bndbox = self.bndbox_mpii_val[index - self.size_coco_val]
             imgname = self.imgname_mpii_val[index - self.size_coco_val]
-            imgset = 'mpii'
+            imgset = "mpii"
 
-        if imgset == 'coco':
+        if imgset == "coco":
             imgname = reduce(lambda x, y: x + y, map(lambda x: chr(int(x)), imgname))
         else:
-            imgname = reduce(lambda x, y: x + y, map(lambda x: chr(int(x)), imgname))[:13]
+            imgname = reduce(lambda x, y: x + y, map(lambda x: chr(int(x)), imgname))[
+                :13
+            ]
 
-        img_path = os.path.join(self.img_folder, imgset, 'images', imgname)
+        img_path = os.path.join(self.img_folder, imgset, "images", imgname)
 
-        metaData = generateSampleBox(img_path, bndbox, part, self.nJoints,
-                                     imgset, sf, self, train=self.is_train)
+        metaData = generateSampleBox(
+            img_path, bndbox, part, self.nJoints, imgset, sf, self, train=self.is_train
+        )
 
         inp, out_bigcircle, out_smallcircle, out, setMask = metaData
 

@@ -1,46 +1,49 @@
-
 import setting
 import pickle
 from sklearn.decomposition import PCA
 import matplotlib.pyplot as plt
 
+
 def pca_for_faces(show_fig=False):
     arg = setting.args_class()
 
-    print('reading...')
-    with open('./faces.pckl','rb') as f:
+    print("reading...")
+    with open("./faces.pckl", "rb") as f:
         faces = pickle.load(f)
 
-    #n_components=0.80 means it will return the Eigenvectors that have the 80% of the variation in the dataset
-    print('calculating...')
+    # n_components=0.80 means it will return the Eigenvectors that have the 80% of the variation in the dataset
+    print("calculating...")
     faces_pca = PCA(n_components=0.9)
     faces_pca.fit(faces)
 
     if show_fig:
-        fig, axes = plt.subplots(2,5,figsize=(9,3),
-            subplot_kw = {'xticks':[], 'yticks':[]},
-            gridspec_kw = dict(hspace=0.01, wspace=0.01))
+        fig, axes = plt.subplots(
+            2,
+            5,
+            figsize=(9, 3),
+            subplot_kw={"xticks": [], "yticks": []},
+            gridspec_kw=dict(hspace=0.01, wspace=0.01),
+        )
 
         for i, ax in enumerate(axes.flat):
-            ax.imshow(faces_pca.components_[i].reshape(200,200),cmap='gray')
+            ax.imshow(faces_pca.components_[i].reshape(200, 200), cmap="gray")
 
-        plt.savefig('love_pc.png')
+        plt.savefig("love_pc.png")
         plt.close()
 
         plt.figure()
         plt.plot(np.cumsum(faces_pca.explained_variance_ratio_))
-        plt.xlabel('number of components')
-        plt.ylabel('cumulative explained variance');
-        plt.savefig('love_variance.png')
+        plt.xlabel("number of components")
+        plt.ylabel("cumulative explained variance")
+        plt.savefig("love_variance.png")
         plt.close()
 
-    print('writing...')
-    with open('./pca.pckl','wb') as f:
-        pickle.dump(faces_pca,f)
+    print("writing...")
+    with open("./pca.pckl", "wb") as f:
+        pickle.dump(faces_pca, f)
 
     print(faces)
     components = faces_pca.transform(faces)
-
 
     # import pickle
     # with open('hc_single_temporal_small.pckl','rb') as f:  # Python 3: open(..., 'rb')
@@ -103,5 +106,5 @@ def pca_for_faces(show_fig=False):
     #     visualize_one_cluster(cluster_id,cluster_clips[cluster_id],leaves,g0,threshold,f)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     pca_for_faces()

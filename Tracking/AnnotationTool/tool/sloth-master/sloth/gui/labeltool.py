@@ -2,10 +2,32 @@
 import logging, os
 import functools
 import fnmatch
-from PyQt4.QtGui import QMainWindow, QSizePolicy, QWidget, QVBoxLayout, QAction,\
-        QKeySequence, QLabel, QItemSelectionModel, QMessageBox, QFileDialog, QFrame, \
-        QDockWidget, QProgressBar
-from PyQt4.QtCore import SIGNAL, QSettings, QSize, QPoint, QVariant, QFileInfo, QTimer, pyqtSignal, QObject
+from PyQt4.QtGui import (
+    QMainWindow,
+    QSizePolicy,
+    QWidget,
+    QVBoxLayout,
+    QAction,
+    QKeySequence,
+    QLabel,
+    QItemSelectionModel,
+    QMessageBox,
+    QFileDialog,
+    QFrame,
+    QDockWidget,
+    QProgressBar,
+)
+from PyQt4.QtCore import (
+    SIGNAL,
+    QSettings,
+    QSize,
+    QPoint,
+    QVariant,
+    QFileInfo,
+    QTimer,
+    pyqtSignal,
+    QObject,
+)
 import PyQt4.uic as uic
 from sloth.gui import qrc_icons  # needed for toolbar icons
 from sloth.gui.propertyeditor import PropertyEditor
@@ -14,13 +36,18 @@ from sloth.gui.frameviewer import GraphicsView
 from sloth.gui.controlbuttons import ControlButtonWidget
 from sloth.conf import config
 from sloth.core.utils import import_callable
-from sloth.annotations.model import AnnotationTreeView, FrameModelItem, ImageFileModelItem
+from sloth.annotations.model import (
+    AnnotationTreeView,
+    FrameModelItem,
+    ImageFileModelItem,
+)
 from sloth import APP_NAME, ORGANIZATION_DOMAIN
 from sloth.utils.bind import bind, compose_noargs
 
-GUIDIR=os.path.join(os.path.dirname(__file__))
+GUIDIR = os.path.join(os.path.dirname(__file__))
 
-LOG=logging.getLogger(__name__)
+LOG = logging.getLogger(__name__)
+
 
 class BackgroundLoader(QObject):
     finished = pyqtSignal()
@@ -51,7 +78,9 @@ class BackgroundLoader(QObject):
                 item = next(self._iterator)
                 self._next_rows += item.rowCount()
                 self._pos += 1
-                self._progress.setValue(int((float(self._pos) / float(self._rows) + self._level - 1) * 1000))
+                self._progress.setValue(
+                    int((float(self._pos) / float(self._rows) + self._level - 1) * 1000)
+                )
             except StopIteration:
                 self._level += 1
                 self._iterator = self._model.iterator(maxlevels=self._level)
@@ -61,6 +90,7 @@ class BackgroundLoader(QObject):
         else:
             LOG.debug("Loading finished...")
             self.finished.emit()
+
 
 class MainWindow(QMainWindow):
     def __init__(self, labeltool, parent=None):
@@ -78,14 +108,20 @@ class MainWindow(QMainWindow):
     def onPluginLoaded(self, action):
         self.ui.menuPlugins.addAction(action)
 
-    def onStatusMessage(self, message=''):
+    def onStatusMessage(self, message=""):
         self.statusBar().showMessage(message, 5000)
 
     def onModelDirtyChanged(self, dirty):
         postfix = "[+]" if dirty else ""
         if self.labeltool.getCurrentFilename() is not None:
-            self.setWindowTitle("%s - %s %s" % \
-                (APP_NAME, QFileInfo(self.labeltool.getCurrentFilename()).fileName(), postfix))
+            self.setWindowTitle(
+                "%s - %s %s"
+                % (
+                    APP_NAME,
+                    QFileInfo(self.labeltool.getCurrentFilename()).fileName(),
+                    postfix,
+                )
+            )
         else:
             self.setWindowTitle("%s - Unnamed %s" % (APP_NAME, postfix))
 
@@ -94,7 +130,9 @@ class MainWindow(QMainWindow):
 
     def startBackgroundLoading(self):
         self.stopBackgroundLoading(forced=True)
-        self.loader = BackgroundLoader(self.labeltool.model(), self.statusBar(), self.sb_progress)
+        self.loader = BackgroundLoader(
+            self.labeltool.model(), self.statusBar(), self.sb_progress
+        )
         self.idletimer.timeout.connect(self.loader.load)
         self.loader.finished.connect(self.stopBackgroundLoading)
         self.statusBar().addWidget(self.sb_progress)
@@ -117,7 +155,9 @@ class MainWindow(QMainWindow):
         self.scene.setModel(self.labeltool.model())
         self.selectionmodel = QItemSelectionModel(self.labeltool.model())
         self.treeview.setSelectionModel(self.selectionmodel)
-        self.treeview.selectionModel().currentChanged.connect(self.labeltool.setCurrentImage)
+        self.treeview.selectionModel().currentChanged.connect(
+            self.labeltool.setCurrentImage
+        )
         self.property_editor.onModelChanged(self.labeltool.model())
         self.startBackgroundLoading()
 
@@ -131,7 +171,10 @@ class MainWindow(QMainWindow):
 
         if img == None:
             self.controls.setFilename("")
-            self.selectionmodel.setCurrentIndex(new_image.index(), QItemSelectionModel.ClearAndSelect|QItemSelectionModel.Rows)
+            self.selectionmodel.setCurrentIndex(
+                new_image.index(),
+                QItemSelectionModel.ClearAndSelect | QItemSelectionModel.Rows,
+            )
             return
 
         h = img.shape[0]
@@ -140,18 +183,23 @@ class MainWindow(QMainWindow):
 
         # TODO: This info should be obtained from AnnotationModel or LabelTool
         if isinstance(new_image, FrameModelItem):
-            self.controls.setFrameNumAndTimestamp(new_image.framenum(), new_image.timestamp())
+            self.controls.setFrameNumAndTimestamp(
+                new_image.framenum(), new_image.timestamp()
+            )
         elif isinstance(new_image, ImageFileModelItem):
-            self.controls.setFilename(os.path.basename(new_image['filename']))
+            self.controls.setFilename(os.path.basename(new_image["filename"]))
 
-        self.selectionmodel.setCurrentIndex(new_image.index(), QItemSelectionModel.ClearAndSelect|QItemSelectionModel.Rows)
+        self.selectionmodel.setCurrentIndex(
+            new_image.index(),
+            QItemSelectionModel.ClearAndSelect | QItemSelectionModel.Rows,
+        )
 
     def onFitToWindowModeChanged(self):
         if self.options["Fit-to-window mode"].isChecked():
             self.view.fitInView()
 
     def onScaleChanged(self, scale):
-        self.zoominfo.setText("%.2f%%" % (100 * scale, ))
+        self.zoominfo.setText("%.2f%%" % (100 * scale,))
 
     def initShortcuts(self, HOTKEYS):
         self.shortcuts = []
@@ -169,10 +217,12 @@ class MainWindow(QMainWindow):
             hk = QAction(desc, self)
             hk.setShortcut(QKeySequence(key))
             hk.setEnabled(True)
-            if hasattr(fun, '__call__'):
+            if hasattr(fun, "__call__"):
                 hk.triggered.connect(bind(fun, self.labeltool))
             else:
-                hk.triggered.connect(compose_noargs([bind(f, self.labeltool) for f in fun]))
+                hk.triggered.connect(
+                    compose_noargs([bind(f, self.labeltool) for f in fun])
+                )
             self.ui.menuShortcuts.addAction(hk)
             self.shortcuts.append(hk)
 
@@ -192,12 +242,20 @@ class MainWindow(QMainWindow):
 
         # get inserters and items from labels
         # FIXME for handling the new-style config correctly
-        inserters = dict([(label['attributes']['class'], label['inserter']) 
-                          for label in config.LABELS
-                          if 'class' in label.get('attributes', {}) and 'inserter' in label])
-        items = dict([(label['attributes']['class'], label['item']) 
-                      for label in config.LABELS
-                      if 'class' in label.get('attributes', {}) and 'item' in label])
+        inserters = dict(
+            [
+                (label["attributes"]["class"], label["inserter"])
+                for label in config.LABELS
+                if "class" in label.get("attributes", {}) and "inserter" in label
+            ]
+        )
+        items = dict(
+            [
+                (label["attributes"]["class"], label["item"])
+                for label in config.LABELS
+                if "class" in label.get("attributes", {}) and "item" in label
+            ]
+        )
 
         # Property Editor
         self.property_editor = PropertyEditor(config.LABELS)
@@ -205,12 +263,16 @@ class MainWindow(QMainWindow):
 
         # Scene
         self.scene = AnnotationScene(self.labeltool, items=items, inserters=inserters)
-        self.property_editor.insertionModeStarted.connect(self.scene.onInsertionModeStarted)
+        self.property_editor.insertionModeStarted.connect(
+            self.scene.onInsertionModeStarted
+        )
         self.property_editor.insertionModeEnded.connect(self.scene.onInsertionModeEnded)
 
         # SceneView
         self.view = GraphicsView(self)
-        self.view.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.MinimumExpanding)
+        self.view.setSizePolicy(
+            QSizePolicy.MinimumExpanding, QSizePolicy.MinimumExpanding
+        )
         self.view.setScene(self.scene)
 
         self.central_widget = QWidget()
@@ -232,7 +294,9 @@ class MainWindow(QMainWindow):
         self.ui.dockAnnotations.setWidget(self.treeview)
 
         self.scene.selectionChanged.connect(self.scene.onSelectionChanged)
-        self.treeview.selectedItemsChanged.connect(self.scene.onSelectionChangedInTreeView)
+        self.treeview.selectedItemsChanged.connect(
+            self.scene.onSelectionChangedInTreeView
+        )
 
         self.posinfo = QLabel("-1, -1")
         self.posinfo.setFrameStyle(QFrame.StyledPanel)
@@ -255,7 +319,7 @@ class MainWindow(QMainWindow):
         self.ui.menu_Views.addAction(self.ui.dockProperties.toggleViewAction())
         self.ui.menu_Views.addAction(self.ui.dockAnnotations.toggleViewAction())
 
-        # Show the UI.  It is important that this comes *after* the above 
+        # Show the UI.  It is important that this comes *after* the above
         # adding of custom widgets, especially the central widget.  Otherwise the
         # dock widgets would be far to large.
         self.ui.show()
@@ -265,11 +329,11 @@ class MainWindow(QMainWindow):
 
     def connectActions(self):
         ## File menu
-        self.ui.actionNew.    triggered.connect(self.fileNew)
-        self.ui.actionOpen.   triggered.connect(self.fileOpen)
-        self.ui.actionSave.   triggered.connect(self.fileSave)
+        self.ui.actionNew.triggered.connect(self.fileNew)
+        self.ui.actionOpen.triggered.connect(self.fileOpen)
+        self.ui.actionSave.triggered.connect(self.fileSave)
         self.ui.actionSave_As.triggered.connect(self.fileSaveAs)
-        self.ui.actionExit.   triggered.connect(self.close)
+        self.ui.actionExit.triggered.connect(self.close)
 
         ## View menu
         self.ui.actionLocked.toggled.connect(self.onViewsLockedChanged)
@@ -279,30 +343,40 @@ class MainWindow(QMainWindow):
 
         ## Navigation
         self.ui.action_Add_Image.triggered.connect(self.addMediaFile)
-        self.ui.actionNext.      triggered.connect(self.labeltool.gotoNext)
-        self.ui.actionPrevious.  triggered.connect(self.labeltool.gotoPrevious)
-        self.ui.actionZoom_In.   triggered.connect(functools.partial(self.view.setScaleRelative, 1.2))
-        self.ui.actionZoom_Out.  triggered.connect(functools.partial(self.view.setScaleRelative, 1/1.2))
+        self.ui.actionNext.triggered.connect(self.labeltool.gotoNext)
+        self.ui.actionPrevious.triggered.connect(self.labeltool.gotoPrevious)
+        self.ui.actionZoom_In.triggered.connect(
+            functools.partial(self.view.setScaleRelative, 1.2)
+        )
+        self.ui.actionZoom_Out.triggered.connect(
+            functools.partial(self.view.setScaleRelative, 1 / 1.2)
+        )
 
         ## Connections to LabelTool
-        self.labeltool.pluginLoaded.       connect(self.onPluginLoaded)
-        self.labeltool.statusMessage.      connect(self.onStatusMessage)
-        self.labeltool.annotationsLoaded.  connect(self.onAnnotationsLoaded)
+        self.labeltool.pluginLoaded.connect(self.onPluginLoaded)
+        self.labeltool.statusMessage.connect(self.onStatusMessage)
+        self.labeltool.annotationsLoaded.connect(self.onAnnotationsLoaded)
         self.labeltool.currentImageChanged.connect(self.onCurrentImageChanged)
 
         ## options menu
-        self.options["Fit-to-window mode"].changed.connect(self.onFitToWindowModeChanged)
+        self.options["Fit-to-window mode"].changed.connect(
+            self.onFitToWindowModeChanged
+        )
 
     def loadApplicationSettings(self):
         settings = QSettings()
-        size   = settings.value("MainWindow/Size", QSize(800, 600))
-        pos    = settings.value("MainWindow/Position", QPoint(10, 10))
-        state  = settings.value("MainWindow/State")
+        size = settings.value("MainWindow/Size", QSize(800, 600))
+        pos = settings.value("MainWindow/Position", QPoint(10, 10))
+        state = settings.value("MainWindow/State")
         locked = settings.value("MainWindow/ViewsLocked", False)
-        if isinstance(size,   QVariant): size  = size.toSize()
-        if isinstance(pos,    QVariant): pos   = pos.toPoint()
-        if isinstance(state,  QVariant): state = state.toByteArray()
-        if isinstance(locked, QVariant): locked = locked.toBool()
+        if isinstance(size, QVariant):
+            size = size.toSize()
+        if isinstance(pos, QVariant):
+            pos = pos.toPoint()
+        if isinstance(state, QVariant):
+            state = state.toByteArray()
+        if isinstance(locked, QVariant):
+            locked = locked.toBool()
         self.resize(size)
         self.move(pos)
         self.restoreState(state)
@@ -310,9 +384,9 @@ class MainWindow(QMainWindow):
 
     def saveApplicationSettings(self):
         settings = QSettings()
-        settings.setValue("MainWindow/Size",        self.size())
-        settings.setValue("MainWindow/Position",    self.pos())
-        settings.setValue("MainWindow/State",       self.saveState())
+        settings.setValue("MainWindow/Size", self.size())
+        settings.setValue("MainWindow/Position", self.pos())
+        settings.setValue("MainWindow/State", self.saveState())
         settings.setValue("MainWindow/ViewsLocked", self.ui.actionLocked.isChecked())
         if self.labeltool.getCurrentFilename() is not None:
             filename = self.labeltool.getCurrentFilename()
@@ -322,10 +396,12 @@ class MainWindow(QMainWindow):
 
     def okToContinue(self):
         if self.labeltool.model().dirty():
-            reply = QMessageBox.question(self,
-                    "%s - Unsaved Changes" % (APP_NAME),
-                    "Save unsaved changes?",
-                    QMessageBox.Yes|QMessageBox.No|QMessageBox.Cancel)
+            reply = QMessageBox.question(
+                self,
+                "%s - Unsaved Changes" % (APP_NAME),
+                "Save unsaved changes?",
+                QMessageBox.Yes | QMessageBox.No | QMessageBox.Cancel,
+            )
             if reply == QMessageBox.Cancel:
                 return False
             elif reply == QMessageBox.Yes:
@@ -339,15 +415,18 @@ class MainWindow(QMainWindow):
     def fileOpen(self):
         if not self.okToContinue():
             return
-        path = '.'
+        path = "."
         filename = self.labeltool.getCurrentFilename()
         if (filename is not None) and (len(filename) > 0):
             path = QFileInfo(filename).path()
 
-        format_str = ' '.join(self.labeltool.getAnnotationFilePatterns())
-        fname = QFileDialog.getOpenFileName(self, 
-                "%s - Load Annotations" % APP_NAME, path,
-                "%s annotation files (%s)" % (APP_NAME, format_str))
+        format_str = " ".join(self.labeltool.getAnnotationFilePatterns())
+        fname = QFileDialog.getOpenFileName(
+            self,
+            "%s - Load Annotations" % APP_NAME,
+            path,
+            "%s annotation files (%s)" % (APP_NAME, format_str),
+        )
         if len(str(fname)) > 0:
             self.labeltool.loadAnnotations(fname)
 
@@ -358,26 +437,43 @@ class MainWindow(QMainWindow):
         return self.labeltool.saveAnnotations(filename)
 
     def fileSaveAs(self):
-        fname = '.'  # self.annotations.filename() or '.'
-        format_str = ' '.join(self.labeltool.getAnnotationFilePatterns())
-        fname = QFileDialog.getSaveFileName(self,
-                "%s - Save Annotations" % APP_NAME, fname,
-                "%s annotation files (%s)" % (APP_NAME, format_str))
+        fname = "."  # self.annotations.filename() or '.'
+        format_str = " ".join(self.labeltool.getAnnotationFilePatterns())
+        fname = QFileDialog.getSaveFileName(
+            self,
+            "%s - Save Annotations" % APP_NAME,
+            fname,
+            "%s annotation files (%s)" % (APP_NAME, format_str),
+        )
 
         if len(str(fname)) > 0:
             return self.labeltool.saveAnnotations(str(fname))
         return False
 
     def addMediaFile(self):
-        path = '.'
+        path = "."
         filename = self.labeltool.getCurrentFilename()
         if (filename is not None) and (len(filename) > 0):
             path = QFileInfo(filename).path()
 
-        image_types = [ '*.jpg', '*.bmp', '*.png', '*.pgm', '*.ppm', '*.ppm', '*.tif', '*.gif' ]
-        video_types = [ '*.mp4', '*.mpg', '*.mpeg', '*.avi', '*.mov', '*.vob' ]
-        format_str = ' '.join(image_types + video_types)
-        fname = QFileDialog.getOpenFileName(self, "%s - Add Media File" % APP_NAME, path, "Media files (%s)" % (format_str, ))
+        image_types = [
+            "*.jpg",
+            "*.bmp",
+            "*.png",
+            "*.pgm",
+            "*.ppm",
+            "*.ppm",
+            "*.tif",
+            "*.gif",
+        ]
+        video_types = ["*.mp4", "*.mpg", "*.mpeg", "*.avi", "*.mov", "*.vob"]
+        format_str = " ".join(image_types + video_types)
+        fname = QFileDialog.getOpenFileName(
+            self,
+            "%s - Add Media File" % APP_NAME,
+            path,
+            "Media files (%s)" % (format_str,),
+        )
 
         if len(str(fname)) == 0:
             return
@@ -396,11 +492,10 @@ class MainWindow(QMainWindow):
     def onViewsLockedChanged(self, checked):
         features = QDockWidget.AllDockWidgetFeatures
         if checked:
-            features = QDockWidget.NoDockWidgetFeatures 
+            features = QDockWidget.NoDockWidgetFeatures
 
         self.ui.dockProperties.setFeatures(features)
         self.ui.dockAnnotations.setFeatures(features)
-
 
     ###
     ### global event handling
@@ -412,11 +507,12 @@ class MainWindow(QMainWindow):
             event.ignore()
 
     def about(self):
-        QMessageBox.about(self, "About %s" % APP_NAME,
-             """<b>%s</b> version %s
+        QMessageBox.about(
+            self,
+            "About %s" % APP_NAME,
+            """<b>%s</b> version %s
              <p>This labeling application for computer vision research
              was developed at the CVHCI research group at KIT.
              <p>For more details, visit our homepage: <a href="%s">%s</a>"""
-              % (APP_NAME, __version__, ORGANIZATION_DOMAIN, ORGANIZATION_DOMAIN))
-
-
+            % (APP_NAME, __version__, ORGANIZATION_DOMAIN, ORGANIZATION_DOMAIN),
+        )

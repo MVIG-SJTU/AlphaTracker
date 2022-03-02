@@ -5,11 +5,13 @@ from sloth.annotations.model import AnnotationModelItem
 from sloth.utils import toQImage
 from sloth.conf import config
 import logging
+
 LOG = logging.getLogger(__name__)
 
 
 class AnnotationScene(QGraphicsScene):
     mousePositionChanged = pyqtSignal(float, float)
+
     def __init__(self, labeltool, items=None, inserters=None, parent=None):
         super(AnnotationScene, self).__init__(parent)
 
@@ -31,7 +33,7 @@ class AnnotationScene(QGraphicsScene):
 
     #
     # getters/setters
-    #______________________________________________________________________________________________________
+    # ______________________________________________________________________________________________________
     def setModel(self, model):
         if model == self._model:
             # same model as the current one
@@ -74,20 +76,20 @@ class AnnotationScene(QGraphicsScene):
         elif current_image is None:
             self.clear()
             self._image_item = None
-            self._image      = None
-            self._pixmap     = None
+            self._image = None
+            self._pixmap = None
         else:
             self.clear()
             self._image_item = current_image
             assert self._image_item.model() == self._model
-            self._image      = self._labeltool.getImage(self._image_item)
-            self._pixmap     = QPixmap(toQImage(self._image))
+            self._image = self._labeltool.getImage(self._image_item)
+            self._pixmap = QPixmap(toQImage(self._image))
             self._scene_item = QGraphicsPixmapItem(self._pixmap)
             self._scene_item.setZValue(-1)
             self.setSceneRect(0, 0, self._pixmap.width(), self._pixmap.height())
             self.addItem(self._scene_item)
 
-            self.insertItems(0, len(self._image_item.children())-1)
+            self.insertItems(0, len(self._image_item.children()) - 1)
             self.update()
 
     def insertItems(self, first, last):
@@ -97,26 +99,32 @@ class AnnotationScene(QGraphicsScene):
         assert self._model is not None
 
         # create a graphics item for each model index
-        for row in range(first, last+1):
+        for row in range(first, last + 1):
             child = self._image_item.childAt(row)
             if not isinstance(child, AnnotationModelItem):
                 continue
             try:
-                label_class = child['class']
+                label_class = child["class"]
             except KeyError:
-                LOG.debug('Could not find key class in annotation item. Skipping this item. Please check your label file.')
+                LOG.debug(
+                    "Could not find key class in annotation item. Skipping this item. Please check your label file."
+                )
                 continue
             item = self._itemfactory.create(label_class, child)
             if item is not None:
                 self.addItem(item)
             else:
-                LOG.debug("Could not find item for annotation with class '%s'" % label_class)
+                LOG.debug(
+                    "Could not find item for annotation with class '%s'" % label_class
+                )
 
     def deleteSelectedItems(self):
         # some (graphics) items may share the same model item
         # therefore we need to determine the unique set of model items first
         # must use a dict for hashing instead of a set, because objects are not hashable
-        modelitems_to_delete = dict((id(item.modelItem()), item.modelItem()) for item in self.selectedItems())
+        modelitems_to_delete = dict(
+            (id(item.modelItem()), item.modelItem()) for item in self.selectedItems()
+        )
         for item in modelitems_to_delete.values():
             item.delete()
 
@@ -135,13 +143,21 @@ class AnnotationScene(QGraphicsScene):
 
         # Add new inserter
         default_properties = self._labeltool.propertyeditor().currentEditorProperties()
-        inserter = self._inserterfactory.create(label_class, self._labeltool, self, default_properties)
+        inserter = self._inserterfactory.create(
+            label_class, self._labeltool, self, default_properties
+        )
         if inserter is None:
-            raise InvalidArgumentException("Could not find inserter for class '%s' with default properties '%s'" % (label_class, default_properties))
+            raise InvalidArgumentException(
+                "Could not find inserter for class '%s' with default properties '%s'"
+                % (label_class, default_properties)
+            )
         inserter.inserterFinished.connect(self.onInserterFinished)
         self._labeltool.currentImageChanged.connect(inserter.imageChange)
         self._inserter = inserter
-        LOG.debug("Created inserter for class '%s' with default properties '%s'" % (label_class, default_properties))
+        LOG.debug(
+            "Created inserter for class '%s' with default properties '%s'"
+            % (label_class, default_properties)
+        )
 
     def onInsertionModeEnded(self):
         if self._inserter is not None:
@@ -149,7 +165,7 @@ class AnnotationScene(QGraphicsScene):
 
     #
     # common methods
-    #______________________________________________________________________________________________________
+    # ______________________________________________________________________________________________________
     def reset(self):
         self.clear()
         self.setCurrentImage(None)
@@ -170,12 +186,17 @@ class AnnotationScene(QGraphicsScene):
 
     #
     # mouse event handlers
-    #______________________________________________________________________________________________________
+    # ______________________________________________________________________________________________________
     def mousePressEvent(self, event):
-        LOG.debug("mousePressEvent %s %s" % (self.sceneRect().contains(event.scenePos()), event.scenePos()))
+        LOG.debug(
+            "mousePressEvent %s %s"
+            % (self.sceneRect().contains(event.scenePos()), event.scenePos())
+        )
         if self._inserter is not None:
-            if not self.sceneRect().contains(event.scenePos()) and \
-               not self._inserter.allowOutOfSceneEvents():
+            if (
+                not self.sceneRect().contains(event.scenePos())
+                and not self._inserter.allowOutOfSceneEvents()
+            ):
                 # ignore events outside the scene rect
                 return
             # insert mode
@@ -185,10 +206,15 @@ class AnnotationScene(QGraphicsScene):
             QGraphicsScene.mousePressEvent(self, event)
 
     def mouseDoubleClickEvent(self, event):
-        LOG.debug("mouseDoubleClickEvent %s %s" % (self.sceneRect().contains(event.scenePos()), event.scenePos()))
+        LOG.debug(
+            "mouseDoubleClickEvent %s %s"
+            % (self.sceneRect().contains(event.scenePos()), event.scenePos())
+        )
         if self._inserter is not None:
-            if not self.sceneRect().contains(event.scenePos()) and \
-                    not self._inserter.allowOutOfSceneEvents():
+            if (
+                not self.sceneRect().contains(event.scenePos())
+                and not self._inserter.allowOutOfSceneEvents()
+            ):
                 # ignore events outside the scene rect
                 return
             # insert mode
@@ -198,7 +224,10 @@ class AnnotationScene(QGraphicsScene):
             QGraphicsScene.mouseDoubleClickEvent(self, event)
 
     def mouseReleaseEvent(self, event):
-        LOG.debug("mouseReleaseEvent %s %s" % (self.sceneRect().contains(event.scenePos()), event.scenePos()))
+        LOG.debug(
+            "mouseReleaseEvent %s %s"
+            % (self.sceneRect().contains(event.scenePos()), event.scenePos())
+        )
         if self._inserter is not None:
             # insert mode
             self._inserter.mouseReleaseEvent(event, self._image_item)
@@ -209,7 +238,7 @@ class AnnotationScene(QGraphicsScene):
     def mouseMoveEvent(self, event):
         sp = event.scenePos()
         self.mousePositionChanged.emit(sp.x(), sp.y())
-        #LOG.debug("mouseMoveEvent %s %s" % (self.sceneRect().contains(event.scenePos()), event.scenePos()))
+        # LOG.debug("mouseMoveEvent %s %s" % (self.sceneRect().contains(event.scenePos()), event.scenePos()))
         if self._inserter is not None:
             # insert mode
             self._inserter.mouseMoveEvent(event, self._image_item)
@@ -248,7 +277,7 @@ class AnnotationScene(QGraphicsScene):
 
     #
     # key event handlers
-    #______________________________________________________________________________________________________
+    # ______________________________________________________________________________________________________
     def selectNextItem(self, reverse=False):
         # disable inserting
         # TODO: forward this to the ButtonArea
@@ -266,8 +295,11 @@ class AnnotationScene(QGraphicsScene):
             selected_item.setSelected(False)
             found = False
 
-        items = [item for item in self.items()
-                 if item.flags() & QGraphicsItem.ItemIsSelectable] * 2
+        items = [
+            item
+            for item in self.items()
+            if item.flags() & QGraphicsItem.ItemIsSelectable
+        ] * 2
         if reverse:
             items.reverse()
 
@@ -315,9 +347,12 @@ class AnnotationScene(QGraphicsScene):
     #
     # slots for signals from the model
     # this is the implemenation of the scene as a view of the model
-    #______________________________________________________________________________________________________
+    # ______________________________________________________________________________________________________
     def dataChanged(self, indexFrom, indexTo):
-        if self._image_item is None or self._image_item.index() != indexFrom.parent().parent():
+        if (
+            self._image_item is None
+            or self._image_item.index() != indexFrom.parent().parent()
+        ):
             return
 
         item = self.itemFromIndex(indexFrom.parent())
@@ -334,7 +369,7 @@ class AnnotationScene(QGraphicsScene):
         if self._image_item is None or self._image_item.index() != index:
             return
 
-        for row in range(first, last+1):
+        for row in range(first, last + 1):
             items = self.itemsFromIndex(index.child(row, 0))
             for item in items:
                 # if the item has a parent item, do not delete it
@@ -351,7 +386,7 @@ class AnnotationScene(QGraphicsScene):
         for item in self.items():
             # some graphics items will not have an index method,
             # we just skip these
-            if hasattr(item, 'index') and item.index() == index:
+            if hasattr(item, "index") and item.index() == index:
                 return item
         return None
 
@@ -360,13 +395,13 @@ class AnnotationScene(QGraphicsScene):
         for item in self.items():
             # some graphics items will not have an index method,
             # we just skip these
-            if hasattr(item, 'index') and item.index() == index:
+            if hasattr(item, "index") and item.index() == index:
                 items.append(item)
         return items
 
     #
     # message handling and displaying
-    #______________________________________________________________________________________________________
+    # ______________________________________________________________________________________________________
     def setMessage(self, message):
         if self._message is not None:
             self.clearMessage()
@@ -374,7 +409,7 @@ class AnnotationScene(QGraphicsScene):
         if message is None or message == "":
             return
 
-        self._message = message.replace('\n', '<br />')
+        self._message = message.replace("\n", "<br />")
         self._message_text_item = QGraphicsTextItem()
         self._message_text_item.setHtml(self._message)
         self._message_text_item.setPos(20, 20)
@@ -393,14 +428,15 @@ class AnnotationScene(QGraphicsScene):
             assert self._message_text_item is not None
 
             painter.setTransform(QTransform())
-            painter.setBrush(QColor('lightGray'))
-            painter.setPen(QPen(QBrush(QColor('black')), 2))
+            painter.setBrush(QColor("lightGray"))
+            painter.setPen(QPen(QBrush(QColor("black")), 2))
 
             br = self._message_text_item.boundingRect()
 
-            painter.drawRoundedRect(QRectF(10, 10, br.width()+20, br.height()+20), 10.0, 10.0)
+            painter.drawRoundedRect(
+                QRectF(10, 10, br.width() + 20, br.height() + 20), 10.0, 10.0
+            )
             painter.setTransform(QTransform.fromTranslate(20, 20))
-            painter.setPen(QPen(QColor('black'), 1))
+            painter.setPen(QPen(QColor("black"), 1))
 
             self._message_text_item.paint(painter, QStyleOptionGraphicsItem(), None)
-

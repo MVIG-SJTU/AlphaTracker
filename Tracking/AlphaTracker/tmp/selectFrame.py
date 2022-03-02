@@ -2,13 +2,16 @@ import os
 import sys
 import cv2
 
+
 def mkdir_p(path):
     try:
         os.makedirs(path)
-    except OSError as exc: # Python >2.5 (except OSError, exc: for Python <2.5)
+    except OSError as exc:  # Python >2.5 (except OSError, exc: for Python <2.5)
         if os.path.exists(path) and os.path.isdir(path):
             pass
-        else: raise
+        else:
+            raise
+
 
 # video_full_path_list = [
 #     '/disk4/zexin/project/mice/datasets/0520/2036_black_four.mov',
@@ -87,85 +90,111 @@ def mkdir_p(path):
 
 
 video_full_path_list = [
-'/disk4/zexin/project/mice/datasets/06_040506_twoMice/0902_black_two.mov',
-'/disk4/zexin/project/mice/datasets/06_040506_twoMice/0854_black_two.mov',
-'/disk4/zexin/project/mice/datasets/06_040506_twoMice/0910_black_two.mov',
+    "/disk4/zexin/project/mice/datasets/06_040506_twoMice/0902_black_two.mov",
+    "/disk4/zexin/project/mice/datasets/06_040506_twoMice/0854_black_two.mov",
+    "/disk4/zexin/project/mice/datasets/06_040506_twoMice/0910_black_two.mov",
 ]
-frame_esp_list =[
+frame_esp_list = [
     [
-        [6300,6500],
-        [6900,7500],
-        [7900,8700],
-        [9380,9850],
-        [10500,11600],
-        [11800,12600],
-        [13600,13700],
-        [14200,14400],
+        [6300, 6500],
+        [6900, 7500],
+        [7900, 8700],
+        [9380, 9850],
+        [10500, 11600],
+        [11800, 12600],
+        [13600, 13700],
+        [14200, 14400],
     ],
     [
-        [990,1800],
-        [2800,3800],
-        [3950,4100],
-        [4200,4300],
-        [4600,4900],
-        [5300,5600],
+        [990, 1800],
+        [2800, 3800],
+        [3950, 4100],
+        [4200, 4300],
+        [4600, 4900],
+        [5300, 5600],
     ],
     [
-        [2900,2980],
-    ]
+        [2900, 2980],
+    ],
 ]
-save_root = '/disk4/zexin/datasets/mice/new_labeled_byCompany/08/select_track_frame/'
+save_root = "/disk4/zexin/datasets/mice/new_labeled_byCompany/08/select_track_frame/"
 frame_distance = 6
 
 al_count = 0
 for a in frame_esp_list:
     for b in a:
-        al_count = al_count + (b[1]-b[0])
+        al_count = al_count + (b[1] - b[0])
 
-print('total frame:',al_count/frame_distance)
+print("total frame:", al_count / frame_distance)
 
 for video_i in range(len(video_full_path_list)):
     video_full_path = video_full_path_list[video_i]
-    print('reading video:',video_full_path)
+    print("reading video:", video_full_path)
     cap = cv2.VideoCapture(video_full_path)
     if cap.isOpened():
         success = True
     else:
         success = False
-        print(" read failed!make sure that the video format is supported by cv2.VideoCapture")
+        print(
+            " read failed!make sure that the video format is supported by cv2.VideoCapture"
+        )
         exit()
 
     frame_index = -1
     for fe_i in range(len(frame_esp_list[video_i])):
         one_frame_esp = frame_esp_list[video_i][fe_i]
-        video_image_save_path = save_root+'/'+video_full_path.split('/')[-2]+'_'+video_full_path.split('/')[-1]+'_'+str(one_frame_esp[0])+'_'+str(one_frame_esp[1])
+        video_image_save_path = (
+            save_root
+            + "/"
+            + video_full_path.split("/")[-2]
+            + "_"
+            + video_full_path.split("/")[-1]
+            + "_"
+            + str(one_frame_esp[0])
+            + "_"
+            + str(one_frame_esp[1])
+        )
         if not os.path.exists(video_image_save_path):
             mkdir_p(video_image_save_path)
         else:
             # os.system('rm {}/*'.format(video_image_save_path))
             pass
-        
-        while (success):
+
+        while success:
             success, frame = cap.read()
 
             if not success:
-                print('read frame failed!')
+                print("read frame failed!")
                 break
             frame_index += 1
-            sys.stdout.write('\r>> Converting image %d' % (
-                frame_index,))
+            sys.stdout.write("\r>> Converting image %d" % (frame_index,))
             sys.stdout.flush()
 
-            if frame_index<one_frame_esp[0]:
+            if frame_index < one_frame_esp[0]:
                 continue
-            elif frame_index>=one_frame_esp[1]:
+            elif frame_index >= one_frame_esp[1]:
                 break
-            elif (frame_index-one_frame_esp[0])%frame_distance == 0:
-                frame_path = video_image_save_path+'/'+video_full_path.split('/')[-2]+'_'+video_full_path.split('/')[-1].split('.')[0]+'_'+video_full_path.split('/')[-1].split('.')[1]+'_'+str(one_frame_esp[0])+'_'+str(one_frame_esp[1])+'_'+str(frame_index)+'.png'
+            elif (frame_index - one_frame_esp[0]) % frame_distance == 0:
+                frame_path = (
+                    video_image_save_path
+                    + "/"
+                    + video_full_path.split("/")[-2]
+                    + "_"
+                    + video_full_path.split("/")[-1].split(".")[0]
+                    + "_"
+                    + video_full_path.split("/")[-1].split(".")[1]
+                    + "_"
+                    + str(one_frame_esp[0])
+                    + "_"
+                    + str(one_frame_esp[1])
+                    + "_"
+                    + str(frame_index)
+                    + ".png"
+                )
                 cv2.imwrite(frame_path, frame)
-                print('\r saving frame as ',frame_path,end='')
+                print("\r saving frame as ", frame_path, end="")
             else:
                 continue
 
     cap.release()
-print('')
+print("")
