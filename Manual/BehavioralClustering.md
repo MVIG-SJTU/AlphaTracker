@@ -13,12 +13,6 @@ The main process of hierarchical clustering list below can be found in 	`./fft_m
 
 <br>
 
-## Installation
-
-See the [installation for the tracking part](Tracking.md).
-
-<br>
-
 ## Run clustering algorithm
 
 ### Step 1. Configuration

@@ -4,14 +4,9 @@ This interface is browser-based. We recommend using `Google Chrome` as the brows
 
 Pre-installed Python3 is required since this package includes Python scripts.
 
-
-### Installation 
-
-Download and unzip the file.
-
 ### Running
 
-Run `python server.py` in command window in the unzipped folder. A window should appear in the user's browser. Then click `html/`. From there, select a program you want to run. `cluster.html` is the Cluster UI and `curate.html` is the Tracking UI.
+Change your working directory to [UI/](../UI) by running `cd ./UI`. Run `python server.py` in command window. A window should appear in the user's browser. Then click `html/`. From there, select a program you want to run. `cluster.html` is the Cluster UI and `curate.html` is the Tracking UI.
 
 <img src="media/html.jpg" width = "300" /><img src="media/window.png" width = "400" />
 

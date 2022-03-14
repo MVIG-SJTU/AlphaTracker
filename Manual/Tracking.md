@@ -1,78 +1,8 @@
 # 01 Tracking
 
-## Preparation
-
-Download the AlphaTracker repository. Once downloaded, change the name of the main folder from `AlphaTracker-master` to `AlphaTracker`. 
-
-### Install Conda
-
-This project is tested in conda env in linux, and thus that is the recommended environment. To install conda, please follow the instructions from the [conda website](https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html) With conda installed, please set up the environment with the following steps.
-
-### NVIDIA driver
-
-Please makse sure that your NVIDIA driver version  >= 450.
-
-### Git Bash
-
-Windows users please install [Git Bash](https://git-scm.com/downloads), and make sure your commands are all run in Git Bash.
-
-### Install AlphaTracker
-
-In your command window, locate the terminal prompt. Open this application. Then, find the folder that contains the `AlphaTracker` repository that you just downloaded. Then inside the terminal window, change the directory as follows: `cd /path/to/AlphaTracker`. 
-
-Then run the following command:
-```bash
-bash install.sh
-```
-
-<br>
-
 ## Training (Optional)
 
-We have provided pretrained models. However, if you want to train your own models on your custom dataset, you can refer to the following steps.
-
-### Step 1. Data Preparation
-
-Labeled data is required to train the model. The code would read RGB images and json files of
-annotations to train the model. Our code is compatible with data annotated by the open source tool Sloth.
-Figure 1 shows an example of annotation json file. In this example, there only two images. Each image has two mice and each mouse has two keypoint annotated.
-<div align="center">
-    <img src="media/jsonFormatForTraining.png", width="500" alt><br>
-    Figure 1. Example of Annotation Json File
-</div>
-
-**Note** that point order matters. You must annotate all body parts in the same order for all frames. For
-example, all the first points represent the nose, all the second points represent the tail and etc.
-If the keypoint is not visible in one frame, then make the x,y of the keypoint to be -1.
-
-### Step 2. Configuration
-
-Before training, you need to charge the parameters in [Tracking/AlphaTracker/setting.py](../Tracking/AlphaTracker/setting.py) (red block in Figure 2). The meaning of the parameters can be found in the comments.
-<div align="center">
-    <img src="media/parameterForTracking.png", width="500" alt><br>
-    Figure 2. Parameters
-</div>
-
-### Step 3. Running the code
-
-Change directory to the [alphatracker folder](../Tracking/AlphaTracker/) and use the following command line to train the model:
-```bash
-# if your current virtual environment is not alphatracker
-# run this command first: conda activate alphatracker
-python train.py
-```
-
-<br>
-
-### Demo data for training
-
-If you want to test AlphaTracker's training without annotating your own data, here we provide 600 frames of two unmarked mice interacting in a homecage annotated:
-
-https://drive.google.com/file/d/1TYIXYYIkDDQQ6KRPqforrup_rtS0YetR/view?usp=sharing
-
-### Demo weights for tracking 
-
-There is a demo video in [Tracking/Alphatracker/data](../Tracking/Alphatracker/data) that you can use for tracking. If you want to use the trained network we provide to track this video set `exp_name=demo` in the [Tracking/AlphaTracker/setting.py](../Tracking/AlphaTracker/setting.py)
+We do not support training on Windows yet.
 
 ## Tracking
 
