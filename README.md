@@ -9,6 +9,7 @@
     <img src="Manual/media/pipeline.png", width="600" alt><br>
     Architecture and Pipeline of AlphaTracker
 </div>
+
 ## Instructions
 
 - Installation
