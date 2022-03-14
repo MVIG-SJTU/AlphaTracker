@@ -13,7 +13,7 @@
 
 - When make, meet this problem:
 
-  ![QA_nvcc](E:\AlphaTracker\Manual\media\QA_nvcc.png)
+  ![QA_nvcc](./media/QA_nvcc.png)
 
   First check whether you have installed nvcc: `cd /usr/local/cuda/bin && ls` 
 
@@ -23,6 +23,6 @@
 
 - When make darknet, meet nvcc fatal problems like this:
 
-  ![QA_arch](E:\AlphaTracker\Manual\media\QA_arch.png)
+  ![QA_arch](./media/QA_arch.png)
 
   This is due to cuda version difference. Please open `Tracking/AlphaTracker/train_yolo/darknet/Makefile`, and change the `ARCH` according to your cuda version and following the commented instructions. We give an default example for CUDA 11.1 there.
