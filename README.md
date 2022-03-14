@@ -9,8 +9,12 @@
     <img src="Manual/media/pipeline.png", width="600" alt><br>
     Architecture and Pipeline of AlphaTracker
 </div>
-
 ## Instructions
+
+- Installation
+
+  See [Installation.md](Manual/Installation.md)
+
 - Tracking
 
    If you have access to GPU:
@@ -26,7 +30,7 @@
    [Unsupervised Behavioral Clustering](Manual/BehavioralClustering.md)
 
 - UI for inspecting tracking and clustering results
-   
+  
    [Tracking UI and Clustering UI](Manual/UI.md)
 
 
