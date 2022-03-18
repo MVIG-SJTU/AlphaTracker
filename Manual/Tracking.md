@@ -20,7 +20,7 @@ If the keypoint is not visible in one frame, then make the x,y of the keypoint t
 
 ### Step 2. Configuration
 
-Before training, you need to charge the parameters in [Tracking/AlphaTracker/setting.py](../Tracking/AlphaTracker/setting.py) (red block in Figure 2). The meaning of the parameters can be found in the comments.
+Before training, you need to change the parameters in [Tracking/AlphaTracker/setting.py](../Tracking/AlphaTracker/setting.py) (red block in Figure 2). The meaning of the parameters can be found in the comments.
 <div align="center">
     <img src="media/parameterForTracking.png", width="500" alt><br>
     Figure 2. Parameters
