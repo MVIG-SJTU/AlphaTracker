@@ -26,3 +26,5 @@
 Tracking/AlphaTracker/train_yolo/darknet/backup/
 Tracking/AlphaTracker/train_yolo/darknet/darknet53.conv.74
 Tracking/AlphaTracker/train_yolo/darknet/train.sh
+
+main_ui
