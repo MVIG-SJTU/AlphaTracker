@@ -12,7 +12,7 @@ conda activate alphatracker
 # conda env update --file environment.yml
 
 # Install pytorch
-conda install pytorch==1.9.0 torchvision==0.10.0 torchaudio==0.9.0 cudatoolkit=11.1 -c pytorch -c conda-forge -y
+conda install pytorch==1.8.0 torchvision==0.9.0 torchaudio==0.8.0 cudatoolkit=11.1 -c pytorch -c conda-forge -y
 
 export PATH=/usr/local/cuda/bin/:$PATH
 export LD_LIBRARY_PATH=/usr/local/cuda/lib64/:$LD_LIBRARY_PATH
