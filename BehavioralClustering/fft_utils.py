@@ -293,7 +293,7 @@ def retrieve_poses_Mice(arg):
                 frame_ind_inClip += 1
 
             except Exception as e:
-                print('failed to process the {}th frame with error:{}. will restart the clip'.format(frame_id,e))
+                print('failed to process the {}th frame with warning:{}. will restart the clip'.format(frame_id,e))
                 frame_id += 1
                 pose_clip = []
                 poseTheOther_clip = []

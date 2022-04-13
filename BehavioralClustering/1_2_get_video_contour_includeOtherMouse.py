@@ -158,9 +158,6 @@ def get_samples(video_path,json_path,contour_path,arg,targetMouseID):
 
 
 if __name__ == '__main__':
-    # dir_name = '/disk1/zexin/project/mice/clustering_sequencial/forZexin/results/0603/1411_black_two/'
-    # video_name = '1411_black_two.mov'
-    # json_name= '/disk1/zexin/project/mice/clustering_sequencial/forZexin/results/0603/1411_black_two/alphapose-results-forvis-tracked.json'
     arg = setting.args_class()
 
     if (len(sys.argv)!=1):
