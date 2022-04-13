@@ -26,6 +26,15 @@ class args_class(object):
         self.videodir = [
             '../Tracking/AlphaTracker/data/demo.mp4',
             ]
+        ## start_frame is a list of start frame numbers to be extracted. Same as the start_frame in tracking.
+        self.start_frame = [
+            0,
+            ]
+
+        ## end_frame is a list of end frame numbers to be extracted. Same as the end_frame in tracking.
+        self.end_frame = [
+            300,
+            ]
 
         ## mice_num: the max number of the mice in the videos
         self.mice_num = 2
