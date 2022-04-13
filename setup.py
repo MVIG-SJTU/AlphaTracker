@@ -109,12 +109,12 @@ if __name__ == '__main__':
         tests_require=['pytest'],
         install_requires=[
             'numpy', 'scipy', 'opencv-python', 'matplotlib',
-            'tqdm', 'googledrivedownloader', 'h5py', 'pandas',
+            'tqdm', 'googledrivedownloader', 'h5py', 'pandas==1.4.2',
             'nibabel', 'pycocotools', 'tensorboardx', 'munkres',
-            'visdom', 'scikit-learn', 'seaborn', 'umap'
+            'visdom', 'scikit-learn', 'seaborn', 'umap', 'requests'
         ],
         zip_safe=False)
     
     print('\n Install `torchsample` ...')
-    cmd = 'python -m pip install git+https://github.com/ZexinChen/torchsample'
+    cmd = 'python -m pip install ./torchsample'
     os.system(cmd)
