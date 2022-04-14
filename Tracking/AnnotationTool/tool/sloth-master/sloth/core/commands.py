@@ -16,7 +16,8 @@ class ConvertCommand(BaseCommand):
     """
     Converts a label file from one file format to another.
     """
-    args = '<input> <output>'
+
+    args = "<input> <output>"
     help = __doc__.strip()
 
     def handle(self, *args, **options):
@@ -37,22 +38,28 @@ class CreateConfigCommand(BaseCommand):
     """
     Creates a configuration file with default values.
     """
-    args = '<output>'
+
+    args = "<output>"
     help = __doc__.strip()
     option_list = BaseCommand.option_list + (
-        make_option('-f', '--force', action='store_true', default=False,
-            help='Overwrite the file if it exists.'),
+        make_option(
+            "-f",
+            "--force",
+            action="store_true",
+            default=False,
+            help="Overwrite the file if it exists.",
+        ),
     )
 
     def handle(self, *args, **options):
         if len(args) != 1:
             raise CommandError("Expect exactly 1 argument.")
 
-        template_dir = os.path.join(sloth.__path__[0], 'conf')
-        config_template = os.path.join(template_dir, 'default_config.py')
+        template_dir = os.path.join(sloth.__path__[0], "conf")
+        config_template = os.path.join(template_dir, "default_config.py")
         target = args[0]
 
-        if os.path.exists(target) and not options['force']:
+        if os.path.exists(target) and not options["force"]:
             sys.stderr.write("Error: %s exists.  Use -f to overwrite.\n" % target)
             return
 
@@ -67,7 +74,8 @@ class DumpLabelsCommand(BaseCommand):
     """
     Dumps the labels from a label file to stdout.
     """
-    args = '<labelfile>'
+
+    args = "<labelfile>"
     help = __doc__.strip()
 
     def handle(self, *args, **options):
@@ -84,18 +92,32 @@ class AppendFilesCommand(BaseCommand):
     does not exist before.  If the image or video file is already in the label
     file, it will not be appended again.
     """
-    args = '<labelfile> <file1> [<file2> ...]'
+
+    args = "<labelfile> <file1> [<file2> ...]"
     help = __doc__.strip()
     option_list = BaseCommand.option_list + (
-        make_option('-u', '--unlabeled', action='store_true', default=False,
-            help='Mark appended files as unlabeled.'),
-        make_option(      '--image', action='store_true', default=False,
-            help='Force appended files to be recognized as images.'),
-        make_option(      '--video', action='store_true', default=False,
-            help='Force appended files to be recognized as videos.'),
+        make_option(
+            "-u",
+            "--unlabeled",
+            action="store_true",
+            default=False,
+            help="Mark appended files as unlabeled.",
+        ),
+        make_option(
+            "--image",
+            action="store_true",
+            default=False,
+            help="Force appended files to be recognized as images.",
+        ),
+        make_option(
+            "--video",
+            action="store_true",
+            default=False,
+            help="Force appended files to be recognized as videos.",
+        ),
     )
 
-    video_extensions = ['.vob', '.idx', '.mpg', '.mpeg']
+    video_extensions = [".vob", ".idx", ".mpg", ".mpeg"]
 
     def handle(self, *args, **options):
         if len(args) < 2:
@@ -117,7 +139,9 @@ class AppendFilesCommand(BaseCommand):
                 continue
 
             _, ext = os.path.splitext(rel_filename)
-            if (not options['image'] and ext.lower() in self.video_extensions) or options['video']:
+            if (
+                not options["image"] and ext.lower() in self.video_extensions
+            ) or options["video"]:
                 logger.debug("Adding video file: %s" % rel_filename)
                 item = self.labeltool.addVideoFile(rel_filename)
             else:
@@ -125,7 +149,7 @@ class AppendFilesCommand(BaseCommand):
                 item = self.labeltool.addImageFile(rel_filename)
             present_filenames.add(rel_filename)
 
-            if options['unlabeled']:
+            if options["unlabeled"]:
                 item.setUnlabeled(True)
         self.labeltool.saveAnnotations(args[0])
 
@@ -138,7 +162,8 @@ class MergeFilesCommand(BaseCommand):
 
     Output format will be determined by the file suffix of output.
     """
-    args = '<labelfile 1> <labelfile 2> <output>'
+
+    args = "<labelfile 1> <labelfile 2> <output>"
     help = __doc__.strip()
 
     def handle(self, *args, **options):
@@ -162,13 +187,15 @@ class MergeFilesCommand(BaseCommand):
         out_container = self.labeltool._container_factory.create(output)
         out_container.save(an3, output)
 
-    def merge_annotations(self, an1, an2, match_key='filename'):
+    def merge_annotations(self, an1, an2, match_key="filename"):
         """This merges all annotations from an2 into an1."""
 
         for item in an2:
-            matching_items = [it1 for it1 in an1 if
-                              it1['class'] == item['class'] and
-                              it1[match_key] == item[match_key]]
+            matching_items = [
+                it1
+                for it1 in an1
+                if it1["class"] == item["class"] and it1[match_key] == item[match_key]
+            ]
 
             # If we can't find a match, we just append the item to an1.
             if len(matching_items) == 0:
@@ -178,31 +205,40 @@ class MergeFilesCommand(BaseCommand):
             # We found at least one match, just take the first.
             # But put out a warning if there were multiple possible matches.
             if len(matching_items) > 1:
-                logger.warning('Found %d possible matches for %s',
-                               len(matching_items), item['filename'])
+                logger.warning(
+                    "Found %d possible matches for %s",
+                    len(matching_items),
+                    item["filename"],
+                )
             match_item = matching_items[0]
 
             # Update the keys first.
             for key, value in item.iteritems():
-                if key == 'annotations':
+                if key == "annotations":
                     continue
-                if match_item['class'] == 'video' and key == 'frames':
+                if match_item["class"] == "video" and key == "frames":
                     continue
                 if key in match_item and match_item[key] != value:
-                    logger.warning('found matching key %s, but values differ: %s <-> %s',
-                                   key, str(value), str(value))
+                    logger.warning(
+                        "found matching key %s, but values differ: %s <-> %s",
+                        key,
+                        str(value),
+                        str(value),
+                    )
                     continue
 
                 match_item[key] = value
 
             # Merge frames.
-            if match_item['class'] == 'video':
-                match_item['frames'] = self.merge_annotations(match_item['frames'], item['frames'], 'num')
-                match_item['frames'].sort(key=itemgetter('num'))
+            if match_item["class"] == "video":
+                match_item["frames"] = self.merge_annotations(
+                    match_item["frames"], item["frames"], "num"
+                )
+                match_item["frames"].sort(key=itemgetter("num"))
 
             # Merge annotations.
-            if 'annotations' in match_item:
-                match_item['annotations'].extend(item.get('annotations', []))
+            if "annotations" in match_item:
+                match_item["annotations"].extend(item.get("annotations", []))
 
         return an1
 
@@ -213,13 +249,15 @@ def _make_writeable(filename):
     read-only.
     """
     import stat
-    if sys.platform.startswith('java'):
+
+    if sys.platform.startswith("java"):
         # On Jython there is no os.access()
         return
     if not os.access(filename, os.W_OK):
         st = os.stat(filename)
         new_permissions = stat.S_IMODE(st.st_mode) | stat.S_IWUSR
         os.chmod(filename, new_permissions)
+
 
 # command dictionary str -> Command
 _commands = {}
@@ -234,9 +272,10 @@ def get_commands():
     global _commands
     return _commands
 
+
 # TODO automatically discover these
-register_command('convert', ConvertCommand())
-register_command('createconfig', CreateConfigCommand())
-register_command('dumplabels', DumpLabelsCommand())
-register_command('appendfiles', AppendFilesCommand())
-register_command('mergefiles', MergeFilesCommand())
+register_command("convert", ConvertCommand())
+register_command("createconfig", CreateConfigCommand())
+register_command("dumplabels", DumpLabelsCommand())
+register_command("appendfiles", AppendFilesCommand())
+register_command("mergefiles", MergeFilesCommand())

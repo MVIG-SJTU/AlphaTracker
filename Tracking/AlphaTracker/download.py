@@ -2,6 +2,7 @@ from google_drive_downloader import GoogleDriveDownloader as gdd
 import zipfile
 
 
+
 # you can add https://drive.google.com/file/d/ in front of the following file_id and download them manually through web browser.
 sppe_pretrain_weight = '1OPORTWB2cwd5YTVBX-NE8fsauZJWsrtW'
 yolo_pretrain_weight = '1g8uJjK7EOlqrUCmjZTtCegwnNsBig6zn'
@@ -24,4 +25,5 @@ gdd.download_file_from_google_drive(file_id=scipy_data,dest_path='../../UI/data/
 with zipfile.ZipFile('./data/sample_annotated_data.zip', 'r') as zip_ref:
     zip_ref.extractall('./data/sample_annotated_data/')
 
-
+with zipfile.ZipFile("./data/sample_annotated_data.zip", "r") as zip_ref:
+    zip_ref.extractall("./data/sample_annotated_data/")

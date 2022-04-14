@@ -22,6 +22,7 @@ class CommandError(Exception):
     error) is the preferred way to indicate that something has gone
     wrong in the execution of a command.
     """
+
     pass
 
 
@@ -79,24 +80,37 @@ class BaseCommand(object):
         into the command's ``OptionParser`` for parsing arguments.
 
     """
+
     # Metadata about this command.
     option_list = (
-        make_option('-v', '--verbosity', action='store', dest='verbosity', default='2',
-            type='choice', choices=['0', '1', '2', '3', '4'],
-            help='Verbosity level; 0=critical, 1=error, 2=warning, 3=info, 4=debug'),
-        make_option('-c', '--config',
-            help='The Python path to a configuration file, e.g. "myconfig". If this isn\'t provided, sloth\'s default configuration will be used.'),
-        make_option('--pythonpath',
-            help='A directory to add to the Python path, e.g. "/home/user/labeling".'),
+        make_option(
+            "-v",
+            "--verbosity",
+            action="store",
+            dest="verbosity",
+            default="2",
+            type="choice",
+            choices=["0", "1", "2", "3", "4"],
+            help="Verbosity level; 0=critical, 1=error, 2=warning, 3=info, 4=debug",
+        ),
+        make_option(
+            "-c",
+            "--config",
+            help="The Python path to a configuration file, e.g. \"myconfig\". If this isn't provided, sloth's default configuration will be used.",
+        ),
+        make_option(
+            "--pythonpath",
+            help='A directory to add to the Python path, e.g. "/home/user/labeling".',
+        ),
     )
-    help = ''
-    args = ''
+    help = ""
+    args = ""
 
     # Configuration shortcuts that alter various logic.
     can_import_settings = True
 
     def __init__(self):
-        #self.style = color_style()
+        # self.style = color_style()
         self.labeltool = None
 
     def usage(self, subcommand):
@@ -104,9 +118,9 @@ class BaseCommand(object):
         Return a brief description of how to use this command, by
         default from the attribute ``self.help``.
         """
-        usage = '%%prog %s [options] %s' % (subcommand, self.args)
+        usage = "%%prog %s [options] %s" % (subcommand, self.args)
         if self.help:
-            return '%s\n\n%s' % (usage, self.help)
+            return "%s\n\n%s" % (usage, self.help)
         else:
             return usage
 
@@ -118,10 +132,12 @@ class BaseCommand(object):
         Create and return the ``OptionParser`` which will be used to
         parse the arguments to this command.
         """
-        return OptionParser(prog=prog_name,
-                            usage=self.usage(subcommand),
-                            version=self.get_version(),
-                            option_list=self.option_list)
+        return OptionParser(
+            prog=prog_name,
+            usage=self.usage(subcommand),
+            version=self.get_version(),
+            option_list=self.option_list,
+        )
 
     def print_help(self, prog_name, subcommand):
         """
@@ -138,7 +154,7 @@ class BaseCommand(object):
         """
         parser = self.create_parser(argv[0], argv[1])
         options, args = parser.parse_args(argv[2:])
-        #handle_default_options(options)
+        # handle_default_options(options)
         self.execute(*args, **options.__dict__)
 
     def execute(self, *args, **options):
@@ -150,13 +166,13 @@ class BaseCommand(object):
         stderr.
         """
         try:
-            self.stdout = options.get('stdout', sys.stdout)
-            self.stderr = options.get('stderr', sys.stderr)
+            self.stdout = options.get("stdout", sys.stdout)
+            self.stderr = options.get("stderr", sys.stderr)
             output = self.handle(*args, **options)
             if output:
                 self.stdout.write(output)
         except CommandError as e:
-            self.stderr.write('Error: %s\n' % e)
+            self.stderr.write("Error: %s\n" % e)
             sys.exit(1)
 
     def handle(self, *args, **options):
@@ -177,7 +193,8 @@ class NoArgsCommand(BaseCommand):
 
     Attempting to pass arguments will raise ``CommandError``.
     """
-    args = ''
+
+    args = ""
 
     def handle(self, *args, **options):
         if args:
@@ -199,6 +216,7 @@ class LaxOptionParser(OptionParser):
     This is needed because the --config and --pythonpath options may affect
     the commands (and thus the options) that are available to the user.
     """
+
     def error(self, msg):
         pass
 

@@ -14,22 +14,40 @@ def toQImage(im, copy=False):
 
     if im.dtype == np.uint8:
         if len(im.shape) == 2:
-            qim = QImage(im.data, im.shape[1], im.shape[0], im.strides[0], QImage.Format_Indexed8)
+            qim = QImage(
+                im.data, im.shape[1], im.shape[0], im.strides[0], QImage.Format_Indexed8
+            )
             qim.setColorTable(gray_color_table)
             return qim.copy() if copy else qim
 
         elif len(im.shape) == 3:
             if im.shape[2] == 3:
-                qim = QImage(im.data, im.shape[1], im.shape[0], im.strides[0], QImage.Format_RGB888)
+                qim = QImage(
+                    im.data,
+                    im.shape[1],
+                    im.shape[0],
+                    im.strides[0],
+                    QImage.Format_RGB888,
+                )
                 return qim.copy() if copy else qim
             elif im.shape[2] == 4:
-                qim = QImage(im.data, im.shape[1], im.shape[0], im.strides[0], QImage.Format_ARGB32)
+                qim = QImage(
+                    im.data,
+                    im.shape[1],
+                    im.shape[0],
+                    im.strides[0],
+                    QImage.Format_ARGB32,
+                )
                 return qim.copy() if copy else qim
-    raise NotImplementedException('no conversion to QImage implemented for given image type (depth: %s, shape: %s)' %
-                                  (im.dtype, im.shape))
+    raise NotImplementedException(
+        "no conversion to QImage implemented for given image type (depth: %s, shape: %s)"
+        % (im.dtype, im.shape)
+    )
 
 
-def gen_colors(s=0.99, v=0.99, h=None, color_space='rgb', _golden_ratio_conjugate=0.618033988749895):
+def gen_colors(
+    s=0.99, v=0.99, h=None, color_space="rgb", _golden_ratio_conjugate=0.618033988749895
+):
     """A generator for random colors such that adjacent colors are as distinct as possible.
 
     Parameters
@@ -49,9 +67,9 @@ def gen_colors(s=0.99, v=0.99, h=None, color_space='rgb', _golden_ratio_conjugat
     """
     # see http://martin.ankerl.com/2009/12/09/how-to-create-random-colors-programmatically/
 
-    if color_space.lower() == 'rgb':
+    if color_space.lower() == "rgb":
         cs_convert = colorsys.hsv_to_rgb
-    elif color_space.lower() == 'hsv':
+    elif color_space.lower() == "hsv":
         cs_convert = lambda *args: args
     else:
         raise RuntimeError("invalid color_space parameter: %s" % color_space)

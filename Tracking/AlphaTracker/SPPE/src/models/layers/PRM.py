@@ -5,13 +5,35 @@ from opt import opt
 
 
 class Residual(nn.Module):
-    def __init__(self, numIn, numOut, inputResH, inputResW, stride=1,
-                 net_type='preact', useConv=False, baseWidth=9, cardinality=4):
+    def __init__(
+        self,
+        numIn,
+        numOut,
+        inputResH,
+        inputResW,
+        stride=1,
+        net_type="preact",
+        useConv=False,
+        baseWidth=9,
+        cardinality=4,
+    ):
         super(Residual, self).__init__()
 
-        self.con = ConcatTable([convBlock(numIn, numOut, inputResH,
-                                          inputResW, net_type, baseWidth, cardinality, stride),
-                                skipLayer(numIn, numOut, stride, useConv)])
+        self.con = ConcatTable(
+            [
+                convBlock(
+                    numIn,
+                    numOut,
+                    inputResH,
+                    inputResW,
+                    net_type,
+                    baseWidth,
+                    cardinality,
+                    stride,
+                ),
+                skipLayer(numIn, numOut, stride, useConv),
+            ]
+        )
         self.cadd = CaddTable(True)
 
     def forward(self, x):
@@ -20,13 +42,15 @@ class Residual(nn.Module):
         return out
 
 
-def convBlock(numIn, numOut, inputResH, inputResW, net_type, baseWidth, cardinality, stride):
+def convBlock(
+    numIn, numOut, inputResH, inputResW, net_type, baseWidth, cardinality, stride
+):
     numIn = int(numIn)
     numOut = int(numOut)
 
     addTable = ConcatTable()
     s_list = []
-    if net_type != 'no_preact':
+    if net_type != "no_preact":
         s_list.append(nn.BatchNorm2d(numIn))
         s_list.append(nn.ReLU(True))
 
@@ -38,8 +62,7 @@ def convBlock(numIn, numOut, inputResH, inputResW, net_type, baseWidth, cardinal
     s_list.append(nn.BatchNorm2d(numOut // 2))
     s_list.append(nn.ReLU(True))
 
-    conv2 = nn.Conv2d(numOut // 2, numOut // 2,
-                      kernel_size=3, stride=stride, padding=1)
+    conv2 = nn.Conv2d(numOut // 2, numOut // 2, kernel_size=3, stride=stride, padding=1)
     if opt.init:
         nn.init.xavier_normal(conv2.weight)
     s_list.append(conv2)
@@ -51,7 +74,7 @@ def convBlock(numIn, numOut, inputResH, inputResW, net_type, baseWidth, cardinal
     C = cardinality
     s_list = []
 
-    if net_type != 'no_preact':
+    if net_type != "no_preact":
         s_list.append(nn.BatchNorm2d(numIn))
         s_list.append(nn.ReLU(True))
 
@@ -75,19 +98,11 @@ def convBlock(numIn, numOut, inputResH, inputResW, net_type, baseWidth, cardinal
     s = nn.Sequential(*s_list)
     addTable.add(s)
 
-    elewiswAdd = nn.Sequential(
-        addTable,
-        CaddTable(False)
-    )
+    elewiswAdd = nn.Sequential(addTable, CaddTable(False))
     conv2 = nn.Conv2d(numOut // 2, numOut, kernel_size=1)
     if opt.init:
         nn.init.xavier_normal(conv2.weight, gain=math.sqrt(1 / 2))
-    model = nn.Sequential(
-        elewiswAdd,
-        nn.BatchNorm2d(numOut // 2),
-        nn.ReLU(True),
-        conv2
-    )
+    model = nn.Sequential(elewiswAdd, nn.BatchNorm2d(numOut // 2), nn.ReLU(True), conv2)
     return model
 
 
@@ -102,12 +117,10 @@ def pyramid(D, C, inputResH, inputResW):
         s = nn.Sequential(
             nn.FractionalMaxPool2d(2, output_ratio=(scaled, scaled)),
             conv1,
-            nn.UpsamplingBilinear2d(size=(int(inputResH), int(inputResW))))
+            nn.UpsamplingBilinear2d(size=(int(inputResH), int(inputResW))),
+        )
         pyraTable.add(s)
-    pyra = nn.Sequential(
-        pyraTable,
-        CaddTable(False)
-    )
+    pyra = nn.Sequential(pyraTable, CaddTable(False))
     return pyra
 
 
@@ -122,11 +135,7 @@ class skipLayer(nn.Module):
             conv1 = nn.Conv2d(numIn, numOut, kernel_size=1, stride=stride)
             if opt.init:
                 nn.init.xavier_normal(conv1.weight, gain=math.sqrt(1 / 2))
-            self.m = nn.Sequential(
-                nn.BatchNorm2d(numIn),
-                nn.ReLU(True),
-                conv1
-            )
+            self.m = nn.Sequential(nn.BatchNorm2d(numIn), nn.ReLU(True), conv1)
 
     def forward(self, x):
         if self.identity:

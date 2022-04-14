@@ -65,10 +65,10 @@ class ButtonListWidget(QGroupBox):
         button_name = str(self.sender().text())
         self.toggleChecked(button_name, False)
 
-        #for button in self.button_group.buttons():
-            #if button is not self.sender():
-                #button.setChecked(False)
-        #print "sender:", label_name
+        # for button in self.button_group.buttons():
+        # if button is not self.sender():
+        # button.setChecked(False)
+        # print "sender:", label_name
 
     def get_checked_button(self):
         return self.button_group.checkedButton()
@@ -100,8 +100,10 @@ class ButtonArea(QWidget):
             for label in labels:
                 # Description is given in key 'text'.
                 # If empty, use the type attribute.
-                name = label.get('name', '') or label.get('attributes', {}).get('type', '') 
-                self.add_label(name, label.get('attributes', {}))
+                name = label.get("name", "") or label.get("attributes", {}).get(
+                    "type", ""
+                )
+                self.add_label(name, label.get("attributes", {}))
 
         self.init_button_lists()
         self.vlayout.addStretch(1)
@@ -121,7 +123,7 @@ class ButtonArea(QWidget):
             button_list = ButtonListWidget(key)
             for value in property_values:
                 button = button_list.add_button(value)
-                #button.clicked.connect(self.clickedButton)
+                # button.clicked.connect(self.clickedButton)
             button_list.selectionChanged.connect(self.clickedButton)
 
             button_list.hide()
@@ -140,7 +142,10 @@ class ButtonArea(QWidget):
 
     def show_only_label_properties(self, label_name):
         for name, button_list in self.property_button_lists.items():
-            if label_name in self.label_properties and name in self.label_properties[label_name].keys():
+            if (
+                label_name in self.label_properties
+                and name in self.label_properties[label_name].keys()
+            ):
                 button_list.show()
             else:
                 button_list.hide()
@@ -185,8 +190,8 @@ class ButtonArea(QWidget):
         self.stateChanged.emit(self.get_current_state())
 
     def clickedLabelButton(self, label_name):
-        #button = self.get_checked_label_button()
-        #print button
+        # button = self.get_checked_label_button()
+        # print button
         if label_name is not None:
             LOG.debug("ButtonArea: %s" % label_name)
             self.show_only_label_properties(label_name)
@@ -213,6 +218,5 @@ def main():
     return app.exec_()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sys.exit(main())
-

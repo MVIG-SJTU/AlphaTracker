@@ -76,10 +76,12 @@ class BaseItem(QAbstractGraphicsShapeItem):
         Creates a visualization item.
         """
         QAbstractGraphicsShapeItem.__init__(self, parent)
-        self.setFlags(QGraphicsItem.ItemIsSelectable |
-                      QGraphicsItem.ItemIsMovable |
-                      QGraphicsItem.ItemSendsGeometryChanges |
-                      QGraphicsItem.ItemSendsScenePositionChanges)
+        self.setFlags(
+            QGraphicsItem.ItemIsSelectable
+            | QGraphicsItem.ItemIsMovable
+            | QGraphicsItem.ItemSendsGeometryChanges
+            | QGraphicsItem.ItemSendsScenePositionChanges
+        )
 
         self._model_item = model_item
         if self._model_item is not None:
@@ -98,8 +100,10 @@ class BaseItem(QAbstractGraphicsShapeItem):
         self._valid = True
 
         if len(self.cycleValuesOnKeypress) > 0:
-            logging.warning("cycleValueOnKeypress is deprecated and will be removed in the future. " +
-                            "Set BaseItem.hotkeys instead with cycleValue()")
+            logging.warning(
+                "cycleValueOnKeypress is deprecated and will be removed in the future. "
+                + "Set BaseItem.hotkeys instead with cycleValue()"
+            )
 
         self.changeColor()
 
@@ -113,10 +117,10 @@ class BaseItem(QAbstractGraphicsShapeItem):
 
     def onDataChanged(self, indexFrom, indexTo):
         # FIXME why is this not updated, when changed graphically via attribute box ?
-        #print "onDataChanged", self._model_item.index(), indexFrom, indexTo, indexFrom.parent()
+        # print "onDataChanged", self._model_item.index(), indexFrom, indexTo, indexFrom.parent()
         if indexFrom == self._model_item.index():
             self.changeColor()
-            #print "hit"
+            # print "hit"
             # self._text_item.setHtml(self._compile_text())
 
     def modelItem(self):
@@ -197,9 +201,8 @@ class BaseItem(QAbstractGraphicsShapeItem):
         if self._text != "" and self._text is not None:
             text_lines.append(self._text)
         for key in self._auto_text_keys:
-            text_lines.append("%s: %s" % \
-                    (key, self._model_item.get(key, "")))
-        return '<br/>'.join(text_lines)
+            text_lines.append("%s: %s" % (key, self._model_item.get(key, "")))
+        return "<br/>".join(text_lines)
 
     def dataChanged(self):
         self.dataChange()
@@ -293,21 +296,28 @@ class PointItem(BaseItem):
         self.updatePoint()
 
     def updateModel(self):
-        self._model_item.update({
-            self.prefix() + 'x': self.scenePos().x(),
-            self.prefix() + 'y': self.scenePos().y(),
-        })
+        self._model_item.update(
+            {
+                self.prefix() + "x": self.scenePos().x(),
+                self.prefix() + "y": self.scenePos().y(),
+            }
+        )
 
     def updatePoint(self):
         if self._model_item is None:
             return
 
         try:
-            point = QPointF(float(self._model_item[self.prefix() + 'x']),
-                            float(self._model_item[self.prefix() + 'y']))
+            point = QPointF(
+                float(self._model_item[self.prefix() + "x"]),
+                float(self._model_item[self.prefix() + "y"]),
+            )
         except KeyError as e:
-            LOG.debug("PointItem: Could not find expected key in item: "
-                      + str(e) + ". Check your config!")
+            LOG.debug(
+                "PointItem: Could not find expected key in item: "
+                + str(e)
+                + ". Check your config!"
+            )
             self.setValid(False)
             self._point = None
             return
@@ -337,11 +347,12 @@ class PointItem(BaseItem):
         step = 1
         if event.modifiers() & Qt.ShiftModifier:
             step = 5
-        ds = {Qt.Key_Left:  (-step, 0),
-              Qt.Key_Right: (step, 0),
-              Qt.Key_Up:    (0, -step),
-              Qt.Key_Down:  (0, step)
-             }.get(event.key(), None)
+        ds = {
+            Qt.Key_Left: (-step, 0),
+            Qt.Key_Right: (step, 0),
+            Qt.Key_Up: (0, -step),
+            Qt.Key_Down: (0, step),
+        }.get(event.key(), None)
         if ds is not None:
             self.moveBy(*ds)
             event.accept()
@@ -359,8 +370,7 @@ class RectItem(BaseItem):
         self._left_half_clicked = None
 
         self._updateRect(self._dataToRect(self._model_item))
-        LOG.debug("Constructed rect %s for model item %s" %
-                  (self._rect, model_item))
+        LOG.debug("Constructed rect %s for model item %s" % (self._rect, model_item))
 
     def __call__(self, model_item=None, parent=None):
         item = RectItem(model_item, parent)
@@ -373,13 +383,18 @@ class RectItem(BaseItem):
             return QRectF()
 
         try:
-            return QRectF(float(model_item[self.prefix() + 'x']),
-                          float(model_item[self.prefix() + 'y']),
-                          float(model_item[self.prefix() + 'width']),
-                          float(model_item[self.prefix() + 'height']))
+            return QRectF(
+                float(model_item[self.prefix() + "x"]),
+                float(model_item[self.prefix() + "y"]),
+                float(model_item[self.prefix() + "width"]),
+                float(model_item[self.prefix() + "height"]),
+            )
         except KeyError as e:
-            LOG.debug("RectItem: Could not find expected key in item: "
-                      + str(e) + ". Check your config!")
+            LOG.debug(
+                "RectItem: Could not find expected key in item: "
+                + str(e)
+                + ". Check your config!"
+            )
             self.setValid(False)
             return QRectF()
 
@@ -393,12 +408,14 @@ class RectItem(BaseItem):
 
     def updateModel(self):
         self._rect = QRectF(self.scenePos(), self._rect.size())
-        self._model_item.update({
-            self.prefix() + 'x':      float(self._rect.topLeft().x()),
-            self.prefix() + 'y':      float(self._rect.topLeft().y()),
-            self.prefix() + 'width':  float(self._rect.width()),
-            self.prefix() + 'height': float(self._rect.height()),
-        })
+        self._model_item.update(
+            {
+                self.prefix() + "x": float(self._rect.topLeft().x()),
+                self.prefix() + "y": float(self._rect.topLeft().y()),
+                self.prefix() + "width": float(self._rect.width()),
+                self.prefix() + "height": float(self._rect.height()),
+            }
+        )
 
     def boundingRect(self):
         return QRectF(QPointF(0, 0), self._rect.size())
@@ -417,13 +434,17 @@ class RectItem(BaseItem):
         self._updateRect(rect)
 
     def mousePressEvent(self, event):
-        #if event.modifiers() & Qt.ControlModifier != 0:
+        # if event.modifiers() & Qt.ControlModifier != 0:
         if event.button() & Qt.RightButton != 0:
             self._resize = True
             self._resize_start = event.scenePos()
             self._resize_start_rect = QRectF(self._rect)
-            self._upper_half_clicked = (event.scenePos().y() < self._resize_start_rect.center().y())
-            self._left_half_clicked  = (event.scenePos().x() < self._resize_start_rect.center().x())
+            self._upper_half_clicked = (
+                event.scenePos().y() < self._resize_start_rect.center().y()
+            )
+            self._left_half_clicked = (
+                event.scenePos().x() < self._resize_start_rect.center().x()
+            )
             event.accept()
         else:
             BaseItem.mousePressEvent(self, event)
@@ -445,7 +466,7 @@ class RectItem(BaseItem):
                 y = self._resize_start_rect.y()
                 h = self._resize_start_rect.height() + diff.y()
 
-            rect = QRectF(QPointF(x,y), QSizeF(w, h)).normalized()
+            rect = QRectF(QPointF(x, y), QSizeF(w, h)).normalized()
 
             self._updateRect(rect)
             self.updateModel()
@@ -465,11 +486,12 @@ class RectItem(BaseItem):
         step = 1
         if event.modifiers() & Qt.ShiftModifier:
             step = 5
-        ds = {Qt.Key_Left:  (-step, 0),
-              Qt.Key_Right: (step, 0),
-              Qt.Key_Up:    (0, -step),
-              Qt.Key_Down:  (0, step),
-             }.get(event.key(), None)
+        ds = {
+            Qt.Key_Left: (-step, 0),
+            Qt.Key_Right: (step, 0),
+            Qt.Key_Up: (0, -step),
+            Qt.Key_Down: (0, step),
+        }.get(event.key(), None)
         if ds is not None:
             if event.modifiers() & Qt.ControlModifier:
                 rect = self._rect.adjusted(*((0, 0) + ds))
@@ -485,14 +507,17 @@ class MultiPointItem(BaseItem):
         BaseItem.__init__(self, model_item, prefix, parent)
 
         # make it non-movable for now
-        self.setFlags(QGraphicsItem.ItemIsSelectable |
-                      QGraphicsItem.ItemSendsGeometryChanges |
-                      QGraphicsItem.ItemSendsScenePositionChanges)
+        self.setFlags(
+            QGraphicsItem.ItemIsSelectable
+            | QGraphicsItem.ItemSendsGeometryChanges
+            | QGraphicsItem.ItemSendsScenePositionChanges
+        )
         self._points = None
 
         self._updatePoints(self._dataToPoints(self._model_item))
-        LOG.debug("Constructed points %s for model item %s" %
-                  (self._points, model_item))
+        LOG.debug(
+            "Constructed points %s for model item %s" % (self._points, model_item)
+        )
 
     def __call__(self, model_item=None, parent=None):
         item = MultiPointItem(model_item, parent)
@@ -507,8 +532,11 @@ class MultiPointItem(BaseItem):
         try:
             return model_item[self.prefix()]
         except KeyError as e:
-            LOG.debug("MultiPointItem: Could not find expected key in item: "
-                      + str(e) + ". Check your config!")
+            LOG.debug(
+                "MultiPointItem: Could not find expected key in item: "
+                + str(e)
+                + ". Check your config!"
+            )
             self.setValid(False)
             return QRectF()
 
@@ -534,9 +562,9 @@ class MultiPointItem(BaseItem):
         if self.isSelected():
             pen.setStyle(Qt.DashLine)
         painter.setPen(pen)
-        for k in range(len(self._points)/2):
-            x, y = self._points[2*k:2*k+2]
-            painter.drawEllipse(QRectF(x-1, y-1, 2, 2))
+        for k in range(len(self._points) / 2):
+            x, y = self._points[2 * k : 2 * k + 2]
+            painter.drawEllipse(QRectF(x - 1, y - 1, 2, 2))
 
     def dataChange(self):
         points = self._dataToPoints(self._model_item)
@@ -573,9 +601,7 @@ class GroupItem(BaseItem):
 
 
 class OccludablePointItem(PointItem):
-    hotkeys = {
-        'o': cycleValue('occluded', [True, False])
-    }
+    hotkeys = {"o": cycleValue("occluded", [True, False])}
 
     def __init__(self, *args, **kwargs):
         PointItem.__init__(self, *args, **kwargs)
@@ -586,7 +612,7 @@ class OccludablePointItem(PointItem):
         self.updateColor()
 
     def updateColor(self):
-        key = self.prefix() + 'occluded'
+        key = self.prefix() + "occluded"
         if key in self._model_item:
             occluded = self._model_item[key]
             self.setColor(Qt.red if occluded else Qt.yellow)
@@ -594,16 +620,19 @@ class OccludablePointItem(PointItem):
 
 class IDRectItem(RectItem):
     hotkeys = dict(
-        [('i',    cycleValue(IgnorePrefix('id'), range(36)))] +
-        [(str(i), cycleValue(IgnorePrefix('id'), [i])) for i in range(10)] +
-        [(chr(i-10+65).lower(), cycleValue(IgnorePrefix('id'), [i])) for i in range(10, 36)]
+        [("i", cycleValue(IgnorePrefix("id"), range(36)))]
+        + [(str(i), cycleValue(IgnorePrefix("id"), [i])) for i in range(10)]
+        + [
+            (chr(i - 10 + 65).lower(), cycleValue(IgnorePrefix("id"), [i]))
+            for i in range(10, 36)
+        ]
     )
-    defaultAutoTextKeys = ['id']
+    defaultAutoTextKeys = ["id"]
 
 
 class BBoxFaceItem(GroupItem):
     items = [
-        (IDRectItem,          "bbox"),
+        (IDRectItem, "bbox"),
         (OccludablePointItem, "lec"),
         (OccludablePointItem, "rec"),
         (OccludablePointItem, "mc"),
@@ -618,7 +647,7 @@ class ControlItem(QGraphicsItem):
         self.setFlags(QGraphicsItem.ItemIgnoresTransformations)
 
     def paint(self, painter, option, widget=None):
-        color = QColor('black')
+        color = QColor("black")
         color.setAlpha(200)
         painter.fillRect(self.boundingRect(), color)
 
@@ -627,9 +656,11 @@ class NPointFacePointItem(QGraphicsEllipseItem):
     def __init__(self, landmark, *args, **kwargs):
         self._landmark = landmark
         QGraphicsEllipseItem.__init__(self, *args, **kwargs)
-        self.setFlags(QGraphicsItem.ItemIsMovable |
-                      QGraphicsItem.ItemSendsGeometryChanges |
-                      QGraphicsItem.ItemSendsScenePositionChanges)
+        self.setFlags(
+            QGraphicsItem.ItemIsMovable
+            | QGraphicsItem.ItemSendsGeometryChanges
+            | QGraphicsItem.ItemSendsScenePositionChanges
+        )
 
     def landmark(self):
         return self._landmark
@@ -649,49 +680,41 @@ class NPointFacePointItem(QGraphicsEllipseItem):
 class NPointFaceItem(GroupItem):
     items = [
         # Eyebrows
-        (OccludablePointItem, "lboc"),   # left eyebrow outer center
+        (OccludablePointItem, "lboc"),  # left eyebrow outer center
         (OccludablePointItem, "lbu75"),  # left eyebrow upper contour 75%
         (OccludablePointItem, "lbu50"),  # left eyebrow upper contour 50%
         (OccludablePointItem, "lbu25"),  # left eyebrow upper contour 25%
-        (OccludablePointItem, "lbic"),   # left eyebrow inner center
-
-        (OccludablePointItem, "rbic"),   # right eyebrow inner center
+        (OccludablePointItem, "lbic"),  # left eyebrow inner center
+        (OccludablePointItem, "rbic"),  # right eyebrow inner center
         (OccludablePointItem, "rbu25"),  # right eyebrow upper contour 25%
         (OccludablePointItem, "rbu50"),  # right eyebrow upper contour 50%
         (OccludablePointItem, "rbu75"),  # right eyebrow upper contour 75%
-        (OccludablePointItem, "rboc"),   # right eyebrow outer center
-
+        (OccludablePointItem, "rboc"),  # right eyebrow outer center
         # Eyes
-        (OccludablePointItem, "leoc"),   # left eye outer center
+        (OccludablePointItem, "leoc"),  # left eye outer center
         (OccludablePointItem, "leu67"),  # left eye upper countour 67%
         (OccludablePointItem, "leu33"),  # left eye upper countour 33%
-        (OccludablePointItem, "leic"),   # left eye inner center
+        (OccludablePointItem, "leic"),  # left eye inner center
         (OccludablePointItem, "lel33"),  # left eye lower countour 33%
         (OccludablePointItem, "lel67"),  # left eye lower countour 67%
-
-        (OccludablePointItem, "reic"),   # right eye inner center
+        (OccludablePointItem, "reic"),  # right eye inner center
         (OccludablePointItem, "reu33"),  # left eye upper countour 33%
         (OccludablePointItem, "reu67"),  # left eye upper countour 67%
-        (OccludablePointItem, "reoc"),   # right eye outer center
+        (OccludablePointItem, "reoc"),  # right eye outer center
         (OccludablePointItem, "rel67"),  # left eye lower countour 67%
         (OccludablePointItem, "rel33"),  # left eye lower countour 33%
-
-        (OccludablePointItem, "lec"),    # left eye center
-
-        (OccludablePointItem, "rec"),    # right eye center
-
+        (OccludablePointItem, "lec"),  # left eye center
+        (OccludablePointItem, "rec"),  # right eye center
         # Nose
         (OccludablePointItem, "nr100"),  # nose ridge 100%
-        (OccludablePointItem, "nr67"),   # nose ridge 67%
-        (OccludablePointItem, "nr33"),   # nose ridge 33%
-        (OccludablePointItem, "nt"),     # nose tip
-
-        (OccludablePointItem, "nl"),     # nose left
+        (OccludablePointItem, "nr67"),  # nose ridge 67%
+        (OccludablePointItem, "nr33"),  # nose ridge 33%
+        (OccludablePointItem, "nt"),  # nose tip
+        (OccludablePointItem, "nl"),  # nose left
         (OccludablePointItem, "nbl50"),  # nose base left 50%
-        (OccludablePointItem, "nc"),     # nose center
+        (OccludablePointItem, "nc"),  # nose center
         (OccludablePointItem, "nbr50"),  # nose base right 50%
-        (OccludablePointItem, "nr"),     # nose right
-
+        (OccludablePointItem, "nr"),  # nose right
         # Mouth
         (OccludablePointItem, "mollc"),
         (OccludablePointItem, "moltl67"),
@@ -713,20 +736,17 @@ class NPointFaceItem(GroupItem):
         (OccludablePointItem, "milbr50"),
         (OccludablePointItem, "milbc"),
         (OccludablePointItem, "milbl50"),
-
         # Mouth (legacy)
         (OccludablePointItem, "ulc"),  # upper lip center
         (OccludablePointItem, "llc"),  # lower lip center
-        (OccludablePointItem, "mc"),   # mouth center
+        (OccludablePointItem, "mc"),  # mouth center
         (OccludablePointItem, "lmc"),  # left mouth corner
         (OccludablePointItem, "rmc"),  # right mouth corner
-
         # Ears
-        (OccludablePointItem, "le"),   # left ear
-        (OccludablePointItem, "re"),   # right ear
-
+        (OccludablePointItem, "le"),  # left ear
+        (OccludablePointItem, "re"),  # right ear
         # Chin
-        (OccludablePointItem, "cc"),   # chin center
+        (OccludablePointItem, "cc"),  # chin center
     ]
 
     def __init__(self, model_item=None, prefix="", parent=None):
@@ -734,16 +754,23 @@ class NPointFaceItem(GroupItem):
 
     def createChildren(self):
         for callable_, prefix in self.items:
-            if prefix + 'x' in self._model_item and \
-               prefix + 'y' in self._model_item:
+            if prefix + "x" in self._model_item and prefix + "y" in self._model_item:
                 child = callable_(self._model_item, prefix, self)
-                if hasattr(child, 'setToolTip'):
+                if hasattr(child, "setToolTip"):
                     child.setToolTip(prefix)
                 self._children.append(child)
 
     def boundingRect(self):
-        if 'x' in self._model_item and 'y' in self._model_item and 'w' in self._model_item and 'h' in self._model_item:
-            return QRectF(QPointF(self._model_item['x'], self._model_item['y']), QSizeF(self._model_item['w'], self._model_item['h']))
+        if (
+            "x" in self._model_item
+            and "y" in self._model_item
+            and "w" in self._model_item
+            and "h" in self._model_item
+        ):
+            return QRectF(
+                QPointF(self._model_item["x"], self._model_item["y"]),
+                QSizeF(self._model_item["w"], self._model_item["h"]),
+            )
         else:
             br = GroupItem.boundingRect(self)
             offset = 0.2 * br.height()
@@ -758,19 +785,23 @@ class NPointFaceItem(GroupItem):
         painter.setPen(pen)
         painter.drawRect(self.boundingRect())
 
+
 class PolygonItem(BaseItem):
     def __init__(self, model_item=None, prefix="", parent=None):
         BaseItem.__init__(self, model_item, prefix, parent)
 
         # Make it non-movable for now
-        self.setFlags(QGraphicsItem.ItemIsSelectable |
-                      QGraphicsItem.ItemSendsGeometryChanges |
-                      QGraphicsItem.ItemSendsScenePositionChanges)
+        self.setFlags(
+            QGraphicsItem.ItemIsSelectable
+            | QGraphicsItem.ItemSendsGeometryChanges
+            | QGraphicsItem.ItemSendsScenePositionChanges
+        )
         self._polygon = None
 
         self._updatePolygon(self._dataToPolygon(self._model_item))
-        LOG.debug("Constructed polygon %s for model item %s" %
-                  (self._polygon, model_item))
+        LOG.debug(
+            "Constructed polygon %s for model item %s" % (self._polygon, model_item)
+        )
 
     def __call__(self, model_item=None, parent=None):
         item = PolygonItem(model_item, parent)
@@ -787,13 +818,16 @@ class PolygonItem(BaseItem):
             xn = [float(x) for x in model_item["xn"].split(";")]
             yn = [float(y) for y in model_item["yn"].split(";")]
             for x, y in zip(xn, yn):
-              polygon.append(QPointF(x, y))
+                polygon.append(QPointF(x, y))
 
             return polygon
 
         except KeyError as e:
-            LOG.debug("PolygonItem: Could not find expected key in item: "
-                      + str(e) + ". Check your config!")
+            LOG.debug(
+                "PolygonItem: Could not find expected key in item: "
+                + str(e)
+                + ". Check your config!"
+            )
             self.setValid(False)
             return QPolygonF()
 
@@ -822,9 +856,9 @@ class PolygonItem(BaseItem):
             pen.setStyle(Qt.DashLine)
         painter.setPen(pen)
 
-        for k in range(-1, len(self._polygon)-1):
+        for k in range(-1, len(self._polygon) - 1):
             p1 = self._polygon[k]
-            p2 = self._polygon[k+1]
+            p2 = self._polygon[k + 1]
             painter.drawLine(p1, p2)
 
     def dataChange(self):

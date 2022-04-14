@@ -1,28 +1,5 @@
 # 01 Tracking
 
-## Preparation
-
-Download the AlphaTracker repository. Once downloaded, change the name of the main folder from `AlphaTracker-master` to `AlphaTracker`. 
-
-### Install Conda
-
-This project is tested in conda env in linux, and thus that is the recommended environment. To install conda, please follow the instructions from the [conda website](https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html) With conda installed, please set up the environment with the following steps.
-
-### NVIDIA driver
-
-Please makse sure that your NVIDIA driver version  >= 450.
-
-### Install AlphaTracker
-
-In your command window, locate the terminal prompt. Open this application. Then, find the folder that contains the `AlphaTracker` repository that you just downloaded. Then inside the terminal window, change the directory as follows: `cd /path/to/AlphaTracker`. 
-
-Then run the following command:
-```bash
-bash install.sh
-```
-
-<br>
-
 ## Training (Optional)
 
 We have provided pretrained models. However, if you want to train your own models on your custom dataset, you can refer to the following steps.
@@ -43,7 +20,7 @@ If the keypoint is not visible in one frame, then make the x,y of the keypoint t
 
 ### Step 2. Configuration
 
-Before training, you need to charge the parameters in [Tracking/AlphaTracker/setting.py](../Tracking/AlphaTracker/setting.py) (red block in Figure 2). The meaning of the parameters can be found in the comments.
+Before training, you need to change the parameters in [Tracking/AlphaTracker/setting.py](../Tracking/AlphaTracker/setting.py) (red block in Figure 2). The meaning of the parameters can be found in the comments.
 <div align="center">
     <img src="media/parameterForTracking.png", width="500" alt><br>
     Figure 2. Parameters
@@ -103,5 +80,4 @@ number and try retraining
 can potentially lead to better performance.
 
 <br>
-
 

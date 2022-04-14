@@ -9,7 +9,8 @@ import numpy as np
 
 import torch
 import matplotlib
-matplotlib.use('Agg')
+
+matplotlib.use("Agg")
 from pycocotools.coco import COCO
 from pycocotools.cocoeval import COCOeval
 
@@ -43,7 +44,9 @@ class NullWriter(object):
 
 def accuracy(output, label, dataset, out_offset=None):
     if type(output) == list:
-        return accuracy(output[opt.nStack - 1], label[opt.nStack - 1], dataset, out_offset)
+        return accuracy(
+            output[opt.nStack - 1], label[opt.nStack - 1], dataset, out_offset
+        )
     else:
         return heatmapAccuracy(output.cpu().data, label.cpu().data, dataset.accIdxs)
 
@@ -67,18 +70,19 @@ def heatmapAccuracy(output, label, idxs):
         acc[0] = avg_acc / cnt
     return acc
 
+
 def numAccuracy(preds, gt, idxs):
-    '''
-    preds: [batch_size,4,2] 
-    gt: [batch_size,4,2] 
+    """
+    preds: [batch_size,4,2]
+    gt: [batch_size,4,2]
     idxs = (1, 2, 3, 4)
-    '''
+    """
     # preds = getPreds(output)
     # gt = getPreds(label)
 
     norm = torch.ones(preds.size(0)) * opt.outputResH / 10
     dists = calc_dists(preds, gt, norm)
-    #print(dists)
+    # print(dists)
     acc = torch.zeros(len(idxs) + 1)
     avg_acc = 0
     cnt = 0
@@ -91,11 +95,12 @@ def numAccuracy(preds, gt, idxs):
         acc[0] = avg_acc / cnt
     return acc
 
+
 def getPreds(hm):
-    ''' get predictions from score maps in torch Tensor
-        return type: torch.LongTensor
-    '''
-    assert hm.dim() == 4, 'Score maps should be 4-dim'
+    """get predictions from score maps in torch Tensor
+    return type: torch.LongTensor
+    """
+    assert hm.dim() == 4, "Score maps should be 4-dim"
     maxval, idx = torch.max(hm.view(hm.size(0), hm.size(1), -1), 2)
 
     maxval = maxval.view(hm.size(0), hm.size(1), 1)
@@ -118,19 +123,22 @@ def calc_dists(preds, target, normalize):
     for n in range(preds.size(0)):
         for c in range(preds.size(1)):
             if target[n, c, 0] > 0 and target[n, c, 1] > 0:
-                dists[c, n] = torch.dist(
-                    preds[n, c, :], target[n, c, :]) / normalize[n]
+                dists[c, n] = torch.dist(preds[n, c, :], target[n, c, :]) / normalize[n]
             else:
                 dists[c, n] = -1
     return dists
 
 
 def dist_acc(dists, thr=0.5):
-    ''' Return percentage below threshold while ignoring values with a -1 '''
+    """Return percentage below threshold while ignoring values with a -1"""
     if dists.ne(-1).sum() > 0:
-        return dists.le(thr).eq(dists.ne(-1)).float().sum() * 1.0 / dists.ne(-1).float().sum()
+        return (
+            dists.le(thr).eq(dists.ne(-1)).float().sum()
+            * 1.0
+            / dists.ne(-1).float().sum()
+        )
     else:
-        return - 1
+        return -1
 
 
 def postprocess(output):
@@ -142,7 +150,8 @@ def postprocess(output):
             pX, pY = int(round(p[i][j][0])), int(round(p[i][j][1]))
             if 0 < pX < opt.outputResW - 1 and 0 < pY < opt.outputResH - 1:
                 diff = torch.Tensor(
-                    (hm[pY][pX + 1] - hm[pY][pX - 1], hm[pY + 1][pX] - hm[pY - 1][pX]))
+                    (hm[pY][pX + 1] - hm[pY][pX - 1], hm[pY + 1][pX] - hm[pY - 1][pX])
+                )
                 p[i][j] += diff.sign() * 0.25
     p -= 0.5
 
@@ -150,7 +159,7 @@ def postprocess(output):
 
 
 def getPrediction(hms, pt1, pt2, inpH, inpW, resH, resW):
-    assert hms.dim() == 4, 'Score maps should be 4-dim'
+    assert hms.dim() == 4, "Score maps should be 4-dim"
     maxval, idx = torch.max(hms.view(hms.size(0), hms.size(1), -1), 2)
 
     maxval = maxval.view(hms.size(0), hms.size(1), 1)
@@ -169,34 +178,37 @@ def getPrediction(hms, pt1, pt2, inpH, inpW, resH, resW):
         for j in range(preds.size(1)):
             hm = hms[i][j]
             pX, pY = int(round(float(preds[i][j][0]))), int(
-                round(float(preds[i][j][1])))
+                round(float(preds[i][j][1]))
+            )
             if 1 < pX < opt.outputResW - 2 and 1 < pY < opt.outputResH - 2:
                 diff = torch.Tensor(
-                    (hm[pY][pX + 1] - hm[pY][pX - 1], hm[pY + 1][pX] - hm[pY - 1][pX]))
+                    (hm[pY][pX + 1] - hm[pY][pX - 1], hm[pY + 1][pX] - hm[pY - 1][pX])
+                )
                 diff = diff.sign() * 0.25
                 diff[1] = diff[1] * inpH / inpW
                 preds[i][j] += diff
 
     preds_tf = torch.zeros(preds.size())
-    for i in range(hms.size(0)):        # Number of samples
-        for j in range(hms.size(1)):    # Number of output heatmaps for one sample
+    for i in range(hms.size(0)):  # Number of samples
+        for j in range(hms.size(1)):  # Number of output heatmaps for one sample
             preds_tf[i][j] = transformBoxInvert(
-                preds[i][j], pt1[i], pt2[i], inpH, inpW, resH, resW)
+                preds[i][j], pt1[i], pt2[i], inpH, inpW, resH, resW
+            )
 
     return preds, preds_tf, maxval
 
 
-def getmap(JsonDir='./val/alphapose-results.json'):
-    ListDir = '../coco-minival500_images.txt'
+def getmap(JsonDir="./val/alphapose-results.json"):
+    ListDir = "../coco-minival500_images.txt"
 
-    annType = ['segm', 'bbox', 'keypoints']
+    annType = ["segm", "bbox", "keypoints"]
     annType = annType[2]  # specify type here
-    prefix = 'person_keypoints' if annType == 'keypoints' else 'instances'
-    print('Running evaluation for *%s* results.' % (annType))
+    prefix = "person_keypoints" if annType == "keypoints" else "instances"
+    print("Running evaluation for *%s* results." % (annType))
 
     # load Ground_truth
-    dataType = 'val2014'
-    annFile = '../%s_%s.json' % (prefix, dataType)
+    dataType = "val2014"
+    annFile = "../%s_%s.json" % (prefix, dataType)
     cocoGt = COCO(annFile)
 
     # load Answer(json)
@@ -204,18 +216,18 @@ def getmap(JsonDir='./val/alphapose-results.json'):
     cocoDt = cocoGt.loadRes(resFile)
 
     # load List
-    fin = open(ListDir, 'r')
+    fin = open(ListDir, "r")
     imgIds_str = fin.readline()
-    if imgIds_str[-1] == '\n':
+    if imgIds_str[-1] == "\n":
         imgIds_str = imgIds_str[:-1]
-    imgIds_str = imgIds_str.split(',')
+    imgIds_str = imgIds_str.split(",")
 
     imgIds = []
     for x in imgIds_str:
         imgIds.append(int(x))
 
     # running evaluation
-    iouThrs = np.linspace(.5, 0.95, np.round((0.95 - .5) / .05) + 1, endpoint=True)
+    iouThrs = np.linspace(0.5, 0.95, np.round((0.95 - 0.5) / 0.05) + 1, endpoint=True)
     t = np.where(0.5 == iouThrs)[0]
 
     cocoEval = COCOeval(cocoGt, cocoDt, annType)
@@ -223,7 +235,7 @@ def getmap(JsonDir='./val/alphapose-results.json'):
     cocoEval.evaluate()
     cocoEval.accumulate()
 
-    score = cocoEval.eval['precision'][:, :, :, 0, :]
+    score = cocoEval.eval["precision"][:, :, :, 0, :]
     mApAll, mAp5 = 0.01, 0.01
     if len(score[score > -1]) != 0:
         score2 = score[t]

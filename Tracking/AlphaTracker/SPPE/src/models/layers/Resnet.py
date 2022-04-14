@@ -9,7 +9,9 @@ class Bottleneck(nn.Module):
         super(Bottleneck, self).__init__()
         self.conv1 = nn.Conv2d(inplanes, planes, kernel_size=1, stride=1, bias=False)
         self.bn1 = nn.BatchNorm2d(planes)
-        self.conv2 = nn.Conv2d(planes, planes, kernel_size=3, stride=stride, padding=1, bias=False)
+        self.conv2 = nn.Conv2d(
+            planes, planes, kernel_size=3, stride=stride, padding=1, bias=False
+        )
         self.bn2 = nn.BatchNorm2d(planes)
         self.conv3 = nn.Conv2d(planes, planes * 4, kernel_size=1, stride=1, bias=False)
         self.bn3 = nn.BatchNorm2d(planes * 4)
@@ -33,7 +35,8 @@ class Bottleneck(nn.Module):
 
 
 class ResNet(nn.Module):
-    """ Resnet """
+    """Resnet"""
+
     def __init__(self, architecture):
         super(ResNet, self).__init__()
         assert architecture in ["resnet50", "resnet101"]
@@ -50,8 +53,7 @@ class ResNet(nn.Module):
         self.layer2 = self.make_layer(self.block, 128, self.layers[1], stride=2)
         self.layer3 = self.make_layer(self.block, 256, self.layers[2], stride=2)
 
-        self.layer4 = self.make_layer(
-            self.block, 512, self.layers[3], stride=2)
+        self.layer4 = self.make_layer(self.block, 512, self.layers[3], stride=2)
 
     def forward(self, x):
         x = self.maxpool(self.relu(self.bn1(self.conv1(x))))
@@ -68,8 +70,13 @@ class ResNet(nn.Module):
         downsample = None
         if stride != 1 or self.inplanes != planes * block.expansion:
             downsample = nn.Sequential(
-                nn.Conv2d(self.inplanes, planes * block.expansion,
-                          kernel_size=1, stride=stride, bias=False),
+                nn.Conv2d(
+                    self.inplanes,
+                    planes * block.expansion,
+                    kernel_size=1,
+                    stride=stride,
+                    bias=False,
+                ),
                 nn.BatchNorm2d(planes * block.expansion),
             )
 
