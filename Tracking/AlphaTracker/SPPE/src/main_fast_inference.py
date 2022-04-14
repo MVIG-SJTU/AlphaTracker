@@ -13,14 +13,19 @@ import time
 import sys
 
 import torch._utils
+
 try:
     torch._utils._rebuild_tensor_v2
 except AttributeError:
-    def _rebuild_tensor_v2(storage, storage_offset, size, stride, requires_grad, backward_hooks):
+
+    def _rebuild_tensor_v2(
+        storage, storage_offset, size, stride, requires_grad, backward_hooks
+    ):
         tensor = torch._utils._rebuild_tensor(storage, storage_offset, size, stride)
         tensor.requires_grad = requires_grad
         tensor._backward_hooks = backward_hooks
         return tensor
+
     torch._utils._rebuild_tensor_v2 = _rebuild_tensor_v2
 
 
@@ -30,7 +35,7 @@ class InferenNet(nn.Module):
         self.opt = opt
 
         model = createModel().cuda()
-        print('Loading pose model from {}'.format(opt.pose_model_path))
+        print("Loading pose model from {}".format(opt.pose_model_path))
         sys.stdout.flush()
         model.load_state_dict(torch.load(opt.pose_model_path))
         model.eval()
@@ -44,9 +49,8 @@ class InferenNet(nn.Module):
 
         flip_out = self.pyranet(flip_v(x))
         flip_out = flip_out.narrow(1, 0, self.opt.nClasses)
-        
-        flip_out = flip_v(shuffleLR(
-            flip_out, self.dataset))
+
+        flip_out = flip_v(shuffleLR(flip_out, self.dataset))
 
         out = (flip_out + out) / 2
 
@@ -59,7 +63,7 @@ class InferenNet_fast(nn.Module):
 
         model = createModel().cuda()
         mobile_pth = opt.pose_model_path
-        print('Loading pose model from {}'.format(mobile_pth))
+        print("Loading pose model from {}".format(mobile_pth))
         model.load_state_dict(torch.load(mobile_pth))
 
         model.eval()

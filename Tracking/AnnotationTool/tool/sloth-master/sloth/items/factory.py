@@ -35,8 +35,9 @@ class Factory:
         """
         _type = str(_type)
         if _type in self._items and not replace:
-            raise Exception("Type %s already has an item: %s" %
-                            (_type, str(self._items[_type])))
+            raise Exception(
+                "Type %s already has an item: %s" % (_type, str(self._items[_type]))
+            )
         else:
             if type(item) == str:
                 item = import_callable(item)

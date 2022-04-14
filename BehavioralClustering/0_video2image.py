@@ -12,7 +12,7 @@ from contour_utils import mkdir_p
 import setting
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     arg = setting.args_class()
     
     for video_path, pose_track_vis_path,start_frame, end_frame in zip(arg.videodir,arg.imgdir,arg.start_frame,arg.end_frame):
@@ -38,7 +38,4 @@ if __name__ == '__main__':
         
         cap.release()
 
-    
-
-
-
+  

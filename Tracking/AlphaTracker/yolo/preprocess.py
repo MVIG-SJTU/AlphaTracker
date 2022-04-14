@@ -7,8 +7,10 @@ from torch.autograd import Variable
 import numpy as np
 import cv2
 import matplotlib
-matplotlib.use('agg')
+
+matplotlib.use("agg")
 import matplotlib.pyplot as plt
+
 try:
     from util import count_parameters as count
     from util import convert2cpu as cpu
@@ -19,7 +21,7 @@ from PIL import Image, ImageDraw
 
 
 def letterbox_image(img, inp_dim):
-    '''resize image with unchanged aspect ratio using padding'''
+    """resize image with unchanged aspect ratio using padding"""
     img_w, img_h = img.shape[1], img.shape[0]
     w, h = inp_dim
     new_w = int(img_w * min(w / img_w, h / img_h))
@@ -28,7 +30,11 @@ def letterbox_image(img, inp_dim):
 
     canvas = np.full((inp_dim[1], inp_dim[0], 3), 128)
 
-    canvas[(h - new_h) // 2:(h - new_h) // 2 + new_h, (w - new_w) // 2:(w - new_w) // 2 + new_w, :] = resized_image
+    canvas[
+        (h - new_h) // 2 : (h - new_h) // 2 + new_h,
+        (w - new_w) // 2 : (w - new_w) // 2 + new_w,
+        :,
+    ] = resized_image
 
     return canvas
 
@@ -42,7 +48,7 @@ def prep_image(img, inp_dim):
     # print(img)
     orig_im = cv2.imread(img)
     dim = orig_im.shape[1], orig_im.shape[0]
-    img = (letterbox_image(orig_im, (inp_dim, inp_dim)))
+    img = letterbox_image(orig_im, (inp_dim, inp_dim))
     img_ = img[:, :, ::-1].transpose((2, 0, 1)).copy()
     img_ = torch.from_numpy(img_).float().div(255.0).unsqueeze(0)
     return img_, orig_im, dim
@@ -57,7 +63,7 @@ def prep_frame(img, inp_dim):
 
     orig_im = img
     dim = orig_im.shape[1], orig_im.shape[0]
-    img = (letterbox_image(orig_im, (inp_dim, inp_dim)))
+    img = letterbox_image(orig_im, (inp_dim, inp_dim))
     img_ = img[:, :, ::-1].transpose((2, 0, 1)).copy()
     img_ = torch.from_numpy(img_).float().div(255.0).unsqueeze(0)
     return img_, orig_im, dim
@@ -65,7 +71,7 @@ def prep_frame(img, inp_dim):
 
 def prep_image_pil(img, network_dim):
     orig_im = Image.open(img)
-    img = orig_im.convert('RGB')
+    img = orig_im.convert("RGB")
     dim = img.size
     img = img.resize(network_dim)
     img = torch.ByteTensor(torch.ByteStorage.from_buffer(img.tobytes()))

@@ -16,7 +16,8 @@ class MyVBoxLayout(QVBoxLayout):
             wid = self.parentWidget().parentWidget()
 
             new_size = self.minimumSize()
-            if new_size == self._last_size: return
+            if new_size == self._last_size:
+                return
             self._last_size = new_size
 
             twid = wid.titleBarWidget()

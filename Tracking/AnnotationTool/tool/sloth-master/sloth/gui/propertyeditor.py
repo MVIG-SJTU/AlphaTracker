@@ -1,7 +1,18 @@
 import time
 import logging
 from PyQt4.QtCore import pyqtSignal, QSize, Qt
-from PyQt4.QtGui import QWidget, QGroupBox, QVBoxLayout, QPushButton, QScrollArea, QLineEdit, QDoubleValidator, QIntValidator, QShortcut, QKeySequence
+from PyQt4.QtGui import (
+    QWidget,
+    QGroupBox,
+    QVBoxLayout,
+    QPushButton,
+    QScrollArea,
+    QLineEdit,
+    QDoubleValidator,
+    QIntValidator,
+    QShortcut,
+    QKeySequence,
+)
 from sloth.core.exceptions import ImproperlyConfigured
 from sloth.annotations.model import AnnotationModelItem
 from sloth.gui.floatinglayout import FloatingLayout
@@ -29,11 +40,15 @@ class AbstractAttributeHandler:
 class AttributeHandlerFactory:
     def create(self, attribute, values):
         # Class attribute cannot be changed
-        if attribute == 'class':
+        if attribute == "class":
             return None
 
         # Just a value. No attribute editor needed, we just add it to the item to be inserted...
-        if isinstance(values, str) or isinstance(values, float) or isinstance(values, int):
+        if (
+            isinstance(values, str)
+            or isinstance(values, float)
+            or isinstance(values, int)
+        ):
             return None
 
         # If it's already a handler, just return it
@@ -76,13 +91,20 @@ class DefaultAttributeHandler(QGroupBox, AbstractAttributeHandler):
                 sc = QShortcut(QKeySequence(shortcut), self)
                 self._shortcuts[shortcut] = sc
                 if isinstance(widget, QPushButton):
-                    sc.activated.connect(bind(lambda w: w.click() if not w.isChecked() else None, widget))
+                    sc.activated.connect(
+                        bind(lambda w: w.click() if not w.isChecked() else None, widget)
+                    )
                 elif isinstance(widget, QLineEdit):
                     sc.activated.connect(self.focusInputField)
             else:
-                raise ImproperlyConfigured("Shortcut '%s' defined more than once" % shortcut)
+                raise ImproperlyConfigured(
+                    "Shortcut '%s' defined more than once" % shortcut
+                )
         else:
-            raise ImproperlyConfigured("Shortcut '%s' defined for value '%s' which is hidden" % (shortcut, value))
+            raise ImproperlyConfigured(
+                "Shortcut '%s' defined for value '%s' which is hidden"
+                % (shortcut, value)
+            )
 
     def updateValues(self, values):
         if isinstance(values, type):
@@ -99,7 +121,10 @@ class DefaultAttributeHandler(QGroupBox, AbstractAttributeHandler):
                         v = val[0]
                         shortcut = val[1]
                     else:
-                        raise ImproperlyConfigured("Values must be types, strings, numbers, or tuples of length 2: '%s'" % str(val))
+                        raise ImproperlyConfigured(
+                            "Values must be types, strings, numbers, or tuples of length 2: '%s'"
+                            % str(val)
+                        )
 
                 # Handle the case where value is a Python type
                 if isinstance(v, type):
@@ -107,7 +132,9 @@ class DefaultAttributeHandler(QGroupBox, AbstractAttributeHandler):
                         self.addInputField(v)
                         widget = self._inputField
                     else:
-                        raise ImproperlyConfigured("Input field with type '%s' not supported" % v)
+                        raise ImproperlyConfigured(
+                            "Input field with type '%s' not supported" % v
+                        )
 
                 # * marks the position where buttons for new values will be insered
                 elif val == "*" or val == "<*":
@@ -152,12 +179,16 @@ class DefaultAttributeHandler(QGroupBox, AbstractAttributeHandler):
             self._layout.addWidget(self._inputField)
             self._inputField.returnPressed.connect(self.onInputFieldReturnPressed)
         elif self._inputFieldType is not _type:
-            raise ImproperlyConfigured("Input field for attribute '%s' configured twice with different types %s != %s"\
-                    % (self._attribute, self._inputFieldType, _type))
+            raise ImproperlyConfigured(
+                "Input field for attribute '%s' configured twice with different types %s != %s"
+                % (self._attribute, self._inputFieldType, _type)
+            )
 
     def addValue(self, v, autoAddValue=False):
-        if v in self._buttons: return
-        if autoAddValue and self._insertIndex < 0: return
+        if v in self._buttons:
+            return
+        if autoAddValue and self._insertIndex < 0:
+            return
         button = QPushButton(v, self)
         button.setFlat(True)
         button.setCheckable(True)
@@ -177,7 +208,13 @@ class DefaultAttributeHandler(QGroupBox, AbstractAttributeHandler):
             button.setFlat(True)
 
     def getSelectedValues(self):
-        return set([str(item[self._attribute]) for item in self._current_items if self._attribute in item and item[self._attribute] is not None])
+        return set(
+            [
+                str(item[self._attribute])
+                for item in self._current_items
+                if self._attribute in item and item[self._attribute] is not None
+            ]
+        )
 
     def updateInputField(self):
         if self._inputField is not None:
@@ -206,7 +243,7 @@ class DefaultAttributeHandler(QGroupBox, AbstractAttributeHandler):
     def setItems(self, items, showItemClasses=False):
         self.reset()
         if showItemClasses:
-            title = ", ".join(set([item['class'] for item in items]))
+            title = ", ".join(set([item["class"] for item in items]))
             self.setTitle(self._attribute + " (" + title + ")")
         else:
             self.setTitle(self._attribute)
@@ -246,9 +283,12 @@ class LabelEditor(QScrollArea):
         self._insertion_mode = insertionMode
 
         # Find all classes
-        self._label_classes = set([item['class'] for item in items if 'class' in item])
+        self._label_classes = set([item["class"] for item in items if "class" in item])
         n_classes = len(self._label_classes)
-        LOG.debug("Creating editor for %d item classes: %s" % (n_classes, ", ".join(list(self._label_classes))))
+        LOG.debug(
+            "Creating editor for %d item classes: %s"
+            % (n_classes, ", ".join(list(self._label_classes)))
+        )
 
         # Widget layout
         self._layout = QVBoxLayout()
@@ -265,8 +305,11 @@ class LabelEditor(QScrollArea):
             handler = self._editor.getHandler(attr)
             if handler is not None:
                 if len(items) > 1:
-                    valid_items = [item for item in items
-                                   if attr in self._editor.getLabelClassAttributes(item['class'])]
+                    valid_items = [
+                        item
+                        for item in items
+                        if attr in self._editor.getLabelClassAttributes(item["class"])
+                    ]
                     handler.setItems(valid_items, True)
                 else:
                     handler.setItems(items)
@@ -280,7 +323,10 @@ class LabelEditor(QScrollArea):
         minsz = self.minimumSize()
         sz = self._layout.minimumSize()
         left, top, right, bottom = self.getContentsMargins()
-        return QSize(max(minsz.width(), sz.width() + left + right), max(minsz.height(), sz.height() + top + bottom))
+        return QSize(
+            max(minsz.width(), sz.width() + left + right),
+            max(minsz.height(), sz.height() + top + bottom),
+        )
 
     def labelClasses(self):
         return self._label_classes
@@ -297,18 +343,18 @@ class LabelEditor(QScrollArea):
 
 class PropertyEditor(QWidget):
     # Signals
-    insertionModeStarted       = pyqtSignal(str)
-    insertionModeEnded         = pyqtSignal()
+    insertionModeStarted = pyqtSignal(str)
+    insertionModeEnded = pyqtSignal()
     insertionPropertiesChanged = pyqtSignal(object)
-    editPropertiesChanged      = pyqtSignal(object)
+    editPropertiesChanged = pyqtSignal(object)
 
     def __init__(self, config, parent=None):
         QWidget.__init__(self, parent)
-        self._class_config       = {}
-        self._class_items        = {}
-        self._class_prototypes   = {}
+        self._class_config = {}
+        self._class_items = {}
+        self._class_prototypes = {}
         self._attribute_handlers = {}
-        self._handler_factory    = AttributeHandlerFactory()
+        self._handler_factory = AttributeHandlerFactory()
 
         self._setupGUI()
 
@@ -317,7 +363,9 @@ class PropertyEditor(QWidget):
             self.addLabelClass(label)
 
     def onModelChanged(self, new_model):
-        attrs = set([k for k, v in self._attribute_handlers.items() if v.autoAddEnabled()])
+        attrs = set(
+            [k for k, v in self._attribute_handlers.items() if v.autoAddEnabled()]
+        )
         if len(attrs) > 0:
             start = time.time()
             attr2vals = {}
@@ -325,9 +373,9 @@ class PropertyEditor(QWidget):
                 for attr in attrs:
                     if attr in item:
                         if attr not in attr2vals:
-                            attr2vals[attr] = set((item[attr], ))
+                            attr2vals[attr] = set((item[attr],))
                         else:
-                            attr2vals[attr] |= set((item[attr], ))
+                            attr2vals[attr] |= set((item[attr],))
             diff = time.time() - start
             LOG.info("Extracted annotation values from model in %.2fs" % diff)
             for attr, vals in attr2vals.items():
@@ -337,14 +385,16 @@ class PropertyEditor(QWidget):
 
     def addLabelClass(self, label_config):
         # Check label configuration
-        if 'attributes' not in label_config:
+        if "attributes" not in label_config:
             raise ImproperlyConfigured("Label with no 'attributes' dict found")
-        attrs = label_config['attributes']
-        if 'class' not in attrs:
+        attrs = label_config["attributes"]
+        if "class" not in attrs:
             raise ImproperlyConfigured("Labels must have an attribute 'class'")
-        label_class = attrs['class']
+        label_class = attrs["class"]
         if label_class in self._class_config:
-            raise ImproperlyConfigured("Label with class '%s' defined more than once" % label_class)
+            raise ImproperlyConfigured(
+                "Label with class '%s' defined more than once" % label_class
+            )
 
         # Store config
         self._class_config[label_class] = label_config
@@ -361,16 +411,16 @@ class PropertyEditor(QWidget):
         self._classbox_layout.addWidget(button)
 
         # Add hotkey
-        if 'hotkey' in label_config:
-            hotkey = QShortcut(QKeySequence(label_config['hotkey']), self)
+        if "hotkey" in label_config:
+            hotkey = QShortcut(QKeySequence(label_config["hotkey"]), self)
             hotkey.activated.connect(button.click)
             self._class_shortcuts[label_class] = hotkey
 
     def parseConfiguration(self, label_class, label_config):
-        attrs = label_config['attributes']
+        attrs = label_config["attributes"]
 
         # Add prototype item for insertion
-        self._class_items[label_class] = AnnotationModelItem({ 'class': label_class })
+        self._class_items[label_class] = AnnotationModelItem({"class": label_class})
 
         # Create attribute handler widgets or update their values
         for attr, vals in attrs.items():
@@ -385,7 +435,9 @@ class PropertyEditor(QWidget):
 
         for attr in attrs:
             if attr in self._attribute_handlers:
-                self._class_items[label_class].update(self._attribute_handlers[attr].defaults())
+                self._class_items[label_class].update(
+                    self._attribute_handlers[attr].defaults()
+                )
 
     def getHandler(self, attribute):
         if attribute in self._attribute_handlers:
@@ -394,7 +446,7 @@ class PropertyEditor(QWidget):
             return None
 
     def getLabelClassAttributes(self, label_class):
-        return self._class_config[label_class]['attributes'].keys()
+        return self._class_config[label_class]["attributes"].keys()
 
     def onClassButtonPressed(self, label_class):
         if self._class_buttons[label_class].isChecked():
@@ -437,8 +489,11 @@ class PropertyEditor(QWidget):
 
     def startEditMode(self, model_items):
         # If we're in insertion mode, ignore empty edit requests
-        if self._label_editor is not None and self._label_editor.insertionMode() \
-                and len(model_items) == 0:
+        if (
+            self._label_editor is not None
+            and self._label_editor.insertionMode()
+            and len(model_items) == 0
+        ):
             return
 
         self.endInsertionMode()
@@ -450,7 +505,7 @@ class PropertyEditor(QWidget):
     def _setupGUI(self):
         self._class_buttons = {}
         self._class_shortcuts = {}
-        self._label_editor  = None
+        self._label_editor = None
 
         # Label class buttons
         self._classbox = QGroupBox("Labels", self)
@@ -462,4 +517,3 @@ class PropertyEditor(QWidget):
         self.setLayout(self._layout)
         self._layout.addWidget(self._classbox, 0)
         self._layout.addStretch(1)
-

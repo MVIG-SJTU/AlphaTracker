@@ -17,19 +17,22 @@ for more information.
 from filterpy.common import kinematic_kf, Saver, inv_diagonal, outer_product_sum
 
 import numpy as np
-from filterpy.kalman import (MerweScaledSigmaPoints, UnscentedKalmanFilter,
-                             ExtendedKalmanFilter)
+from filterpy.kalman import (
+    MerweScaledSigmaPoints,
+    UnscentedKalmanFilter,
+    ExtendedKalmanFilter,
+)
+
 
 def test_kinematic_filter():
     global kf
 
     # make sure the default matrices are shaped correctly
-    for dim_x in range(1,4):
-        for order in range (0, 3):
+    for dim_x in range(1, 4):
+        for order in range(0, 3):
             kf = kinematic_kf(dim=dim_x, order=order)
             kf.predict()
             kf.update(np.zeros((dim_x, 1)))
-
 
     # H is tricky, make sure it is shaped and assigned correctly
     kf = kinematic_kf(dim=2, order=2)
@@ -40,23 +43,26 @@ def test_kinematic_filter():
     assert kf.R.shape == (2, 2)
     assert kf.H.shape == (2, 6)
 
-    H = np.array([[1, 0, 0, 0, 0, 0],
-                  [0, 0, 0, 1, 0, 0]], dtype=float)
+    H = np.array([[1, 0, 0, 0, 0, 0], [0, 0, 0, 1, 0, 0]], dtype=float)
     assert np.array_equal(H, kf.H)
 
     kf = kinematic_kf(dim=3, order=2, order_by_dim=False)
-    H = np.array([[1, 0, 0, 0, 0, 0, 0, 0, 0],
-                  [0, 1, 0, 0, 0, 0, 0, 0, 0],
-                  [0, 0, 1, 0, 0, 0, 0, 0, 0]], dtype=float)
+    H = np.array(
+        [
+            [1, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 1, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 1, 0, 0, 0, 0, 0, 0],
+        ],
+        dtype=float,
+    )
     assert np.array_equal(H, kf.H)
 
 
 def test_saver_UKF():
     def fx(x, dt):
-        F = np.array([[1, dt, 0, 0],
-                      [0, 1, 0, 0],
-                      [0, 0, 1, dt],
-                      [0, 0, 0, 1]], dtype=float)
+        F = np.array(
+            [[1, dt, 0, 0], [0, 1, 0, 0], [0, 0, 1, dt], [0, 0, 0, 1]], dtype=float
+        )
 
         return np.dot(F, x)
 
@@ -64,20 +70,20 @@ def test_saver_UKF():
         return np.array([x[0], x[2]])
 
     dt = 0.1
-    points = MerweScaledSigmaPoints(4, .1, 2., -1)
+    points = MerweScaledSigmaPoints(4, 0.1, 2.0, -1)
     kf = UnscentedKalmanFilter(dim_x=4, dim_z=2, dt=dt, fx=fx, hx=hx, points=points)
 
     z_std = 0.1
-    kf.R = np.diag([z_std**2, z_std**2]) # 1 standard
-    kf.x = np.array([-1., 1., -1., 1])
-    kf.P *= 1.
+    kf.R = np.diag([z_std**2, z_std**2])  # 1 standard
+    kf.x = np.array([-1.0, 1.0, -1.0, 1])
+    kf.P *= 1.0
 
     zs = [[i, i] for i in range(40)]
-    s = Saver(kf, skip_private=False, skip_callable=False, ignore=['z_mean'])
+    s = Saver(kf, skip_private=False, skip_callable=False, ignore=["z_mean"])
     for z in zs:
         kf.predict()
         kf.update(z)
-        #print(kf.x, kf.log_likelihood, kf.P.diagonal())
+        # print(kf.x, kf.log_likelihood, kf.P.diagonal())
         s.save()
     s.to_array()
 
@@ -96,11 +102,11 @@ def test_saver_kf():
     assert len(s.x) == 10
     assert len(s.y) == 10
     assert len(s.K) == 10
-    assert (len(s) == len(s.x))
+    assert len(s) == len(s.x)
 
     # Force an exception to occur my malforming K
     kf = kinematic_kf(3, 2, dt=0.1, dim_z=3)
-    kf.K = 0.
+    kf.K = 0.0
     s2 = Saver(kf)
 
     for i in range(10):
@@ -144,7 +150,7 @@ def test_inv_diagonal():
 
         n = np.random.randint(1, 50)
         if i == 0:
-            n = 1 # test 1x1 matrix as special case
+            n = 1  # test 1x1 matrix as special case
 
         S = np.diag(np.random.randn(n))
 
@@ -158,7 +164,7 @@ def test_save_properties():
         aa = 3
 
         def __init__(self):
-            self.x = 7.
+            self.x = 7.0
             self.a = None
 
         @property
@@ -170,7 +176,7 @@ def test_save_properties():
     f = Foo()
     assert f.a is None
     s = Saver(f)
-    s.save() # try to trigger property writing to Foo.a
+    s.save()  # try to trigger property writing to Foo.a
 
     assert s.a[0] == f.a
     assert s.ll[0] == f.a
@@ -186,7 +192,7 @@ def test_outer_product():
     sigmas = np.random.randn(1000000, 2)
     x = np.random.randn(2)
 
-    P1 = outer_product_sum(sigmas-x)
+    P1 = outer_product_sum(sigmas - x)
 
     P2 = 0
     for s in sigmas:
@@ -195,12 +201,9 @@ def test_outer_product():
     assert np.allclose(P1, P2)
 
 
-
-
-
 if __name__ == "__main__":
-    #test_repeaters()
-    '''test_save_properties()
+    # test_repeaters()
+    """test_save_properties()
 
     test_saver_kf()
     test_saver_ekf()
@@ -209,6 +212,4 @@ if __name__ == "__main__":
     ITERS = 1000000
     #test_mahalanobis()
 
-    test_kinematic_filter()'''
-
-
+    test_kinematic_filter()"""

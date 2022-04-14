@@ -2,10 +2,14 @@ import os
 import fnmatch
 import time
 import numpy as np
-from sloth.core.exceptions import \
-    ImproperlyConfigured, NotImplementedException, InvalidArgumentException
+from sloth.core.exceptions import (
+    ImproperlyConfigured,
+    NotImplementedException,
+    InvalidArgumentException,
+)
 from sloth.core.utils import import_callable
 import logging
+
 LOG = logging.getLogger(__name__)
 
 try:
@@ -23,13 +27,17 @@ except ImportError:
 try:
     import okapy
     import okapy.videoio as okv
+
     _use_pil = False
 except ImportError:
     try:
         from PIL import Image
+
         _use_pil = True
     except:
-        raise RuntimeError("Could neither find PIL nor okapy.  Sloth needs one of them for loading images.")
+        raise RuntimeError(
+            "Could neither find PIL nor okapy.  Sloth needs one of them for loading images."
+        )
 
 
 class AnnotationContainerFactory:
@@ -67,9 +75,7 @@ class AnnotationContainerFactory:
         for pattern, container in self._containers:
             if fnmatch.fnmatch(filename, pattern):
                 return container(*args, **kwargs)
-        raise ImproperlyConfigured(
-            "No container registered for filename %s" % filename
-        )
+        raise ImproperlyConfigured("No container registered for filename %s" % filename)
 
 
 class AnnotationContainer:
@@ -85,7 +91,9 @@ class AnnotationContainer:
         return self._filename
 
     def clear(self):
-        self._annotations = []  # TODO Why isn't this used? Annotations are passed as parameters instead. Let's have encapsulation.
+        self._annotations = (
+            []
+        )  # TODO Why isn't this used? Annotations are passed as parameters instead. Let's have encapsulation.
         self._filename = None
         self._video_cache = {}
 
@@ -107,9 +115,9 @@ class AnnotationContainer:
         Read the annotations from disk. Must be implemented in the subclass.
         """
         raise NotImplementedException(
-            "You need to implement parseFromFile() in your subclass " +
-            "if you use the default implementation of " +
-            "AnnotationContainer.load()"
+            "You need to implement parseFromFile() in your subclass "
+            + "if you use the default implementation of "
+            + "AnnotationContainer.load()"
         )
 
     def save(self, annotations, filename=""):
@@ -126,9 +134,9 @@ class AnnotationContainer:
         Serialize the annotations to disk. Must be implemented in the subclass.
         """
         raise NotImplementedException(
-            "You need to implement serializeToFile() in your subclass " +
-            "if you use the default implementation of " +
-            "AnnotationContainer.save()"
+            "You need to implement serializeToFile() in your subclass "
+            + "if you use the default implementation of "
+            + "AnnotationContainer.save()"
         )
 
     def _fullpath(self, filename):
@@ -168,7 +176,7 @@ class AnnotationContainer:
         the video from a path relative to the label files directory.
         """
         fullpath = str(self._fullpath(filename))
-        if not os.path.exists(fullpath) and not os.path.exists(fullpath.split('%')[0]):
+        if not os.path.exists(fullpath) and not os.path.exists(fullpath.split("%")[0]):
             LOG.warn("Video file %s does not exist." % fullpath)
             return None
 
@@ -182,7 +190,10 @@ class AnnotationContainer:
 
         # get requested frame
         if not vidsrc.getFrame(frame_number):
-            LOG.warn("Frame %d could not be loaded from video source %s" % (frame_number, fullpath))
+            LOG.warn(
+                "Frame %d could not be loaded from video source %s"
+                % (frame_number, fullpath)
+            )
             return None
 
         return vidsrc.getImage()
@@ -232,22 +243,28 @@ class OkapiAnnotationContainer(AnnotationContainer):
         annotations = []
         for f in container.files():
             fileitem = self.convertAnnotationPropertiesMapToDict(f.properties())
-            fileitem['class'] = fileitem['type']
-            del fileitem['type']
+            fileitem["class"] = fileitem["type"]
+            del fileitem["type"]
             if f.isImage():
-                fileitem['annotations'] = []
+                fileitem["annotations"] = []
                 for annotation in f.annotations():
-                    ann = self.convertAnnotationPropertiesMapToDict(annotation.properties())
-                    fileitem['annotations'].append(ann)
+                    ann = self.convertAnnotationPropertiesMapToDict(
+                        annotation.properties()
+                    )
+                    fileitem["annotations"].append(ann)
             elif f.isVideo():
-                fileitem['frames'] = []
+                fileitem["frames"] = []
                 for frame in f.frames():
-                    frameitem = self.convertAnnotationPropertiesMapToDict(frame.properties())
-                    frameitem['annotations'] = []
+                    frameitem = self.convertAnnotationPropertiesMapToDict(
+                        frame.properties()
+                    )
+                    frameitem["annotations"] = []
                     for annotation in frame.annotations():
-                        ann = self.convertAnnotationPropertiesMapToDict(annotation.properties())
-                        frameitem['annotations'].append(ann)
-                    fileitem['frames'].append(frameitem)
+                        ann = self.convertAnnotationPropertiesMapToDict(
+                            annotation.properties()
+                        )
+                        frameitem["annotations"].append(ann)
+                    fileitem["frames"].append(frameitem)
             annotations.append(fileitem)
 
         return annotations
@@ -257,7 +274,7 @@ class OkapiAnnotationContainer(AnnotationContainer):
         Converts a dict to a AnnotationPropertiesMap
         """
         for k, v in propdict.items():
-            if k != 'annotations' or k != 'frames':
+            if k != "annotations" or k != "frames":
                 annotation.set_str(k, str(v))
         return annotation
 
@@ -269,25 +286,31 @@ class OkapiAnnotationContainer(AnnotationContainer):
 
         for f in annotations:
             fileitem = okapy.AnnotationFileItem()
-            if f.has_key('class'):
-                f['type'] = f['class']
-                del f['class']
+            if f.has_key("class"):
+                f["type"] = f["class"]
+                del f["class"]
             fileitem = self.convertDictToAnnotationPropertiesMap(fileitem, f)
             if fileitem.isImage():
-                if f.has_key('annotations'):
-                    for annotation in f['annotations']:
+                if f.has_key("annotations"):
+                    for annotation in f["annotations"]:
                         annoitem = okapy.AnnotationItem()
-                        annoitem = self.convertDictToAnnotationPropertiesMap(annoitem, annotation)
+                        annoitem = self.convertDictToAnnotationPropertiesMap(
+                            annoitem, annotation
+                        )
                         fileitem.annotations().push_back(annoitem)
             elif fileitem.isVideo():
-                if f.has_key('frames'):
-                    for frame in f['frames']:
+                if f.has_key("frames"):
+                    for frame in f["frames"]:
                         frameitem = okapy.AnnotationFrameItem()
-                        frameitem = self.convertDictToAnnotationPropertiesMap(frameitem, frame)
-                        if frame.has_key('annotations'):
-                            for annotation in frame['annotations']:
+                        frameitem = self.convertDictToAnnotationPropertiesMap(
+                            frameitem, frame
+                        )
+                        if frame.has_key("annotations"):
+                            for annotation in frame["annotations"]:
                                 annoitem = okapy.AnnotationItem()
-                                annoitem = self.convertDictToAnnotationPropertiesMap(annoitem, annotation)
+                                annoitem = self.convertDictToAnnotationPropertiesMap(
+                                    annoitem, annotation
+                                )
                                 frameitem.annotations().push_back(annoitem)
                         fileitem.frames().push_back(frameitem)
             container.files().push_back(fileitem)
@@ -312,7 +335,7 @@ class JsonContainer(AnnotationContainer):
         Overwritten to write JSON files.
         """
         f = open(fname, "w")
-        json.dump(annotations, f, indent=4, separators=(',', ': '), sort_keys=True)
+        json.dump(annotations, f, indent=4, separators=(",", ": "), sort_keys=True)
         f.write("\n")
 
 
@@ -326,6 +349,7 @@ class MsgpackContainer(AnnotationContainer):
         Overwritten to read Msgpack files.
         """
         import msgpack
+
         f = open(fname, "r")
         return msgpack.load(f)
 
@@ -335,6 +359,7 @@ class MsgpackContainer(AnnotationContainer):
         """
         # TODO make all image filenames relative to the label file
         import msgpack
+
         f = open(fname, "w")
         msgpack.dump(annotations, f)
 
@@ -372,9 +397,9 @@ class FileNameListContainer(AnnotationContainer):
         for line in f:
             line = line.strip()
             fileitem = {
-                'filename': line,
-                'class': 'image',
-                'annotations': [],
+                "filename": line,
+                "class": "image",
+                "annotations": [],
             }
             annotations.append(fileitem)
 
@@ -399,13 +424,13 @@ class FeretContainer(AnnotationContainer):
         for line in f:
             s = line.split()
             fileitem = {
-                'filename': s[0] + ".bmp",
-                'class': 'image',
-                'annotations': [
-                    {'class': 'left_eye',  'x': int(s[1]), 'y': int(s[2])},
-                    {'class': 'right_eye', 'x': int(s[3]), 'y': int(s[4])},
-                    {'class': 'mouth',     'x': int(s[5]), 'y': int(s[6])}
-                ]
+                "filename": s[0] + ".bmp",
+                "class": "image",
+                "annotations": [
+                    {"class": "left_eye", "x": int(s[1]), "y": int(s[2])},
+                    {"class": "right_eye", "x": int(s[3]), "y": int(s[4])},
+                    {"class": "mouth", "x": int(s[5]), "y": int(s[6])},
+                ],
             }
             annotations.append(fileitem)
 
@@ -415,6 +440,4 @@ class FeretContainer(AnnotationContainer):
         """
         Not implemented yet.
         """
-        raise NotImplemented(
-            "FeretContainer.serializeToFile() is not implemented yet."
-        )
+        raise NotImplemented("FeretContainer.serializeToFile() is not implemented yet.")

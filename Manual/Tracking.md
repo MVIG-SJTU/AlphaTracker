@@ -10,7 +10,7 @@ This project is tested in conda env in linux, and thus that is the recommended e
 
 ### NVIDIA driver
 
-Please makse sure that your NVIDIA driver version  >= 450. You can download Nvidia driver for you computer at [nvidia website](https://www.nvidia.com/Download/index.aspx).
+Please makse sure that your NVIDIA driver version  >= 450. You can download Nvidia driver for your computer at [nvidia website](https://www.nvidia.com/Download/index.aspx).
 
 ## Install AlphaTracker
 
@@ -43,7 +43,7 @@ If the keypoint is not visible in one frame, then make the x,y of the keypoint t
 
 ### Step 2. Configuration
 
-Before training, you need to charge the parameters in [Tracking/AlphaTracker/setting.py](../Tracking/AlphaTracker/setting.py) (red block in Figure 2). The meaning of the parameters can be found in the comments.
+Before training, you need to change the parameters in [Tracking/AlphaTracker/setting.py](../Tracking/AlphaTracker/setting.py) (red block in Figure 2). The meaning of the parameters can be found in the comments.
 <div align="center">
     <img src="media/parameterForTracking.png", width="500" alt><br>
     Figure 2. Parameters

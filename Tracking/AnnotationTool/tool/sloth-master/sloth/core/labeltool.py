@@ -32,15 +32,20 @@ class LabelTool(QObject):
     It is also responsible for parsing command line options, call respective
     commands or start the gui.
     """
-    usage = "\n" + \
-            "  %prog [options] [filename]\n\n" + \
-            "  %prog subcommand [options] [args]\n"
 
-    help_text = "Sloth can be started in two different ways.  If the first argument\n" + \
-                "is any of the following subcommands, this command is executed.  Otherwise the\n" + \
-                "sloth GUI is started and the optionally given label file is loaded.\n" + \
-                "\n" + \
-                "Type '%s help <subcommand>' for help on a specific subcommand.\n\n"
+    usage = (
+        "\n"
+        + "  %prog [options] [filename]\n\n"
+        + "  %prog subcommand [options] [args]\n"
+    )
+
+    help_text = (
+        "Sloth can be started in two different ways.  If the first argument\n"
+        + "is any of the following subcommands, this command is executed.  Otherwise the\n"
+        + "sloth GUI is started and the optionally given label file is loaded.\n"
+        + "\n"
+        + "Type '%s help <subcommand>' for help on a specific subcommand.\n\n"
+    )
 
     # Signals
     statusMessage = pyqtSignal(str)
@@ -78,11 +83,11 @@ class LabelTool(QObject):
         Includes a list of all available subcommands.
         """
         usage = self.help_text % self.prog_name
-        usage += 'Available subcommands:\n'
+        usage += "Available subcommands:\n"
         commands = list(get_commands().keys())
         commands.sort()
         for cmd in commands:
-            usage += '  %s\n' % cmd
+            usage += "  %s\n" % cmd
         return usage
 
     def execute_from_commandline(self, argv=None):
@@ -95,18 +100,25 @@ class LabelTool(QObject):
         # Preprocess options to extract --settings and --pythonpath.
         # These options could affect the commands that are available, so they
         # must be processed early.
-        parser = LaxOptionParser(usage=self.usage,
-                                 version=VERSION,
-                                 option_list=BaseCommand.option_list)
+        parser = LaxOptionParser(
+            usage=self.usage, version=VERSION, option_list=BaseCommand.option_list
+        )
         try:
             options, args = parser.parse_args(self.argv)
         except:
             pass  # Ignore any option errors at this point.
 
         # Initialize logging
-        loglevel = (logging.CRITICAL, logging.ERROR, logging.WARNING, logging.INFO, logging.DEBUG)[int(options.verbosity)]
-        logging.basicConfig(level=loglevel,
-                            format='%(asctime)s %(levelname)-8s %(name)-30s %(message)s')  #, datefmt='%H:%M:%S.%m')
+        loglevel = (
+            logging.CRITICAL,
+            logging.ERROR,
+            logging.WARNING,
+            logging.INFO,
+            logging.DEBUG,
+        )[int(options.verbosity)]
+        logging.basicConfig(
+            level=loglevel, format="%(asctime)s %(levelname)-8s %(name)-30s %(message)s"
+        )  # , datefmt='%H:%M:%S.%m')
 
         # Disable PyQt log messages
         logging.getLogger("PyQt4").setLevel(logging.WARNING)
@@ -125,21 +137,21 @@ class LabelTool(QObject):
             subcommand = None
 
         # handle commands and command line arguments
-        if subcommand == 'help':
+        if subcommand == "help":
             if len(args) > 2:
                 self.fetch_command(args[2]).print_help(self.prog_name, args[2])
                 sys.exit(0)
             else:
-                sys.stdout.write(self.main_help_text() + '\n')
+                sys.stdout.write(self.main_help_text() + "\n")
                 parser.print_lax_help()
                 sys.exit(1)
 
-        elif self.argv[1:] == ['--version']:
+        elif self.argv[1:] == ["--version"]:
             # LaxOptionParser already takes care of printing the version.
             sys.exit(0)
 
-        elif self.argv[1:] in (['--help'], ['-h']):
-            sys.stdout.write(self.main_help_text() + '\n')
+        elif self.argv[1:] in (["--help"], ["-h"]):
+            sys.stdout.write(self.main_help_text() + "\n")
             parser.print_lax_help()
             sys.exit(0)
 
@@ -179,8 +191,10 @@ class LabelTool(QObject):
         try:
             app_name = get_commands()[subcommand]
         except KeyError:
-            sys.stderr.write("Unknown command: %r\nType '%s help' for usage.\n" %
-                             (subcommand, self.prog_name))
+            sys.stderr.write(
+                "Unknown command: %r\nType '%s help' for usage.\n"
+                % (subcommand, self.prog_name)
+            )
             sys.exit(1)
         if isinstance(app_name, BaseCommand):
             # If the command is already loaded, use it directly.
@@ -226,8 +240,11 @@ class LabelTool(QObject):
         try:
             self._container = self._container_factory.create(fname)
             self._model = AnnotationModel(self._container.load(fname))
-            msg = "Successfully loaded %s (%d files, %d annotations)" % \
-                  (fname, self._model.root().numFiles(), self._model.root().numAnnotations())
+            msg = "Successfully loaded %s (%d files, %d annotations)" % (
+                fname,
+                self._model.root().numFiles(),
+                self._model.root().numAnnotations(),
+            )
         except Exception as e:
             if handleErrors:
                 msg = "Error: Loading failed (%s)" % str(e)
@@ -253,9 +270,12 @@ class LabelTool(QObject):
             ann = self._model.root().getAnnotations()
 
             self._container.save(ann, fname)
-            #self._model.writeback() # write back changes that are cached in the model itself, e.g. mask updates
-            msg = "Successfully saved %s (%d files, %d annotations)" % \
-                  (fname, self._model.root().numFiles(), self._model.root().numAnnotations())
+            # self._model.writeback() # write back changes that are cached in the model itself, e.g. mask updates
+            msg = "Successfully saved %s (%d files, %d annotations)" % (
+                fname,
+                self._model.root().numFiles(),
+                self._model.root().numAnnotations(),
+            )
             success = True
             self._model.setDirty(False)
         except Exception as e:
@@ -266,8 +286,8 @@ class LabelTool(QObject):
 
     def clearAnnotations(self):
         self._model = AnnotationModel([])
-        #self._model.setBasedir("")
-        self.statusMessage.emit('')
+        # self._model.setBasedir("")
+        self.statusMessage.emit("")
         self.annotationsLoaded.emit()
 
     def getCurrentFilename(self):
@@ -314,10 +334,10 @@ class LabelTool(QObject):
     def updateModified(self):
         """update all GUI elements which depend on the state of the model,
         e.g. whether it has been modified since the last save"""
-        #self.ui.action_Add_Image.setEnabled(self._model is not None)
+        # self.ui.action_Add_Image.setEnabled(self._model is not None)
         # TODO also disable/enable other items
-        #self.ui.actionSave.setEnabled(self.annotations.dirty())
-        #self.setWindowModified(self.annotations.dirty())
+        # self.ui.actionSave.setEnabled(self.annotations.dirty())
+        # self.setWindowModified(self.annotations.dirty())
         pass
 
     def currentImage(self):
@@ -331,34 +351,36 @@ class LabelTool(QObject):
         while (image is not None) and (not isinstance(image, ImageModelItem)):
             image = image.parent()
         if image is None:
-            raise RuntimeError("Tried to set current image to item that has no Image or Frame as parent!")
+            raise RuntimeError(
+                "Tried to set current image to item that has no Image or Frame as parent!"
+            )
         if image != self._current_image:
             self._current_image = image
             self.currentImageChanged.emit()
 
     def getImage(self, item):
-        if item['class'] == 'frame':
+        if item["class"] == "frame":
             video = item.parent()
-            return self._container.loadFrame(video['filename'], item['num'])
+            return self._container.loadFrame(video["filename"], item["num"])
         else:
-            return self._container.loadImage(item['filename'])
+            return self._container.loadImage(item["filename"])
 
     def getAnnotationFilePatterns(self):
         return self._container_factory.patterns()
 
     def addImageFile(self, fname):
         fileitem = {
-            'filename': fname,
-            'class': 'image',
-            'annotations': [],
+            "filename": fname,
+            "class": "image",
+            "annotations": [],
         }
         return self._model._root.appendFileItem(fileitem)
 
     def addVideoFile(self, fname):
         fileitem = {
-            'filename': fname,
-            'class': 'video',
-            'frames': [],
+            "filename": fname,
+            "class": "video",
+            "frames": [],
         }
 
         # FIXME: OKAPI should provide a method to get all timestamps at once
@@ -373,20 +395,17 @@ class LabelTool(QObject):
         if iseq is not None:
             timestamps = iseq.getTimestamps()
             LOG.debug("Adding %d frames" % len(timestamps))
-            fileitem['frames'] = [{'annotations': [], 'num': i,
-                                   'timestamp': ts, 'class': 'frame'}
-                                  for i, ts in enumerate(timestamps)]
+            fileitem["frames"] = [
+                {"annotations": [], "num": i, "timestamp": ts, "class": "frame"}
+                for i, ts in enumerate(timestamps)
+            ]
         else:
             i = 0
             while video.getNextFrame():
                 LOG.debug("Adding frame %d" % i)
                 ts = video.getTimestamp()
-                frame = {'annotations': [],
-                         'num': i,
-                         'timestamp': ts,
-                         'class': 'frame'
-                }
-                fileitem['frames'].append(frame)
+                frame = {"annotations": [], "num": i, "timestamp": ts, "class": "frame"}
+                fileitem["frames"].append(frame)
                 i += 1
 
         self._model._root.appendFileItem(fileitem)

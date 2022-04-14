@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-#pylint: disable=invalid-name
+# pylint: disable=invalid-name
 
 """Copyright 2015 Roger R Labbe Jr.
 
@@ -93,13 +93,12 @@ class Saver(object):
 
     """
 
-    def __init__(self, kf, save_current=False,
-                 skip_private=False,
-                 skip_callable=False,
-                 ignore=()):
-        """ Construct the save object, optionally saving the current
+    def __init__(
+        self, kf, save_current=False, skip_private=False, skip_callable=False, ignore=()
+    ):
+        """Construct the save object, optionally saving the current
         state of the filter"""
-        #pylint: disable=too-many-arguments
+        # pylint: disable=too-many-arguments
 
         self._kf = kf
         self._DL = defaultdict(list)
@@ -112,13 +111,14 @@ class Saver(object):
         # is computed only on access. I use this trick a lot to minimize
         # computing unused information.
         self.properties = inspect.getmembers(
-            type(kf), lambda o: isinstance(o, property))
+            type(kf), lambda o: isinstance(o, property)
+        )
 
         if save_current:
             self.save()
 
     def save(self):
-        """ save the current state of the Kalman filter"""
+        """save the current state of the Kalman filter"""
 
         kf = self._kf
 
@@ -132,8 +132,8 @@ class Saver(object):
 
         if self._skip_private:
             for key in list(v.keys()):
-                if key.startswith('_'):
-                    print('deleting', key)
+                if key.startswith("_"):
+                    print("deleting", key)
                     del v[key]
 
         if self._skip_callable:
@@ -159,7 +159,7 @@ class Saver(object):
 
     @property
     def keys(self):
-        """ list of all keys"""
+        """list of all keys"""
         return list(self._DL.keys())
 
     def to_array(self):
@@ -181,8 +181,7 @@ class Saver(object):
                 # get back to lists so we are in a valid state
                 self.__dict__.update(self._DL)
 
-                raise ValueError(
-                    "could not convert {} into np.array".format(key))
+                raise ValueError("could not convert {} into np.array".format(key))
 
     def flatten(self):
         """
@@ -206,8 +205,9 @@ class Saver(object):
                 pass
 
     def __repr__(self):
-        return '<Saver object at {}\n  Keys: {}>'.format(
-            hex(id(self)), ' '.join(self.keys))
+        return "<Saver object at {}\n  Keys: {}>".format(
+            hex(id(self)), " ".join(self.keys)
+        )
 
 
 def runge_kutta4(y, x, dx, f):
@@ -229,11 +229,11 @@ def runge_kutta4(y, x, dx, f):
     """
 
     k1 = dx * f(y, x)
-    k2 = dx * f(y + 0.5*k1, x + 0.5*dx)
-    k3 = dx * f(y + 0.5*k2, x + 0.5*dx)
+    k2 = dx * f(y + 0.5 * k1, x + 0.5 * dx)
+    k3 = dx * f(y + 0.5 * k2, x + 0.5 * dx)
     k4 = dx * f(y + k3, x + dx)
 
-    return y + (k1 + 2*k2 + 2*k3 + k4) / 6.
+    return y + (k1 + 2 * k2 + 2 * k3 + k4) / 6.0
 
 
 def pretty_str(label, arr):
@@ -255,35 +255,35 @@ def pretty_str(label, arr):
     """
 
     def is_col(a):
-        """ return true if a is a column vector"""
+        """return true if a is a column vector"""
         try:
             return a.shape[0] > 1 and a.shape[1] == 1
         except (AttributeError, IndexError):
             return False
 
     if label is None:
-        label = ''
+        label = ""
 
     if label:
-        label += ' = '
+        label += " = "
 
     if is_col(arr):
-        return label + str(arr.T).replace('\n', '') + '.T'
+        return label + str(arr.T).replace("\n", "") + ".T"
 
-    rows = str(arr).split('\n')
+    rows = str(arr).split("\n")
     if not rows:
-        return ''
+        return ""
 
     s = label + rows[0]
-    pad = ' ' * len(label)
+    pad = " " * len(label)
     for line in rows[1:]:
-        s = s + '\n' + pad + line
+        s = s + "\n" + pad + line
 
     return s
 
 
 def pprint(label, arr, **kwargs):
-    """ pretty prints an NumPy array using the function pretty_str. Keyword
+    """pretty prints an NumPy array using the function pretty_str. Keyword
     arguments are passed to the print() function.
 
     See Also
@@ -301,14 +301,14 @@ def pprint(label, arr, **kwargs):
 
 
 def reshape_z(z, dim_z, ndim):
-    """ ensure z is a (dim_z, 1) shaped vector"""
+    """ensure z is a (dim_z, 1) shaped vector"""
 
     z = np.atleast_2d(z)
     if z.shape[1] == dim_z:
         z = z.T
 
     if z.shape != (dim_z, 1):
-        raise ValueError('z must be convertible to shape ({}, 1)'.format(dim_z))
+        raise ValueError("z must be convertible to shape ({}, 1)".format(dim_z))
 
     if ndim == 1:
         z = z[:, 0]
@@ -352,11 +352,11 @@ def inv_diagonal(S):
     S = np.asarray(S)
 
     if S.ndim != 2 or S.shape[0] != S.shape[1]:
-        raise ValueError('S must be a square Matrix')
+        raise ValueError("S must be a square Matrix")
 
     si = np.zeros(S.shape)
     for i in range(len(S)):
-        si[i, i] = 1. / S[i, i]
+        si[i, i] = 1.0 / S[i, i]
     return si
 
 
@@ -410,5 +410,5 @@ def outer_product_sum(A, B=None):
     if B is None:
         B = A
 
-    outer = np.einsum('ij,ik->ijk', A, B)
+    outer = np.einsum("ij,ik->ijk", A, B)
     return np.sum(outer, axis=0)

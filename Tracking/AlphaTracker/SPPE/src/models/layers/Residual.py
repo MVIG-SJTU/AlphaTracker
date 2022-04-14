@@ -4,16 +4,20 @@ from .util_models import ConcatTable, CaddTable, Identity
 from opt import opt
 
 
-def Residual(numIn, numOut, *arg, stride=1, net_type='preact', useConv=False, **kw):
-    con = ConcatTable([convBlock(numIn, numOut, stride, net_type),
-                       skipLayer(numIn, numOut, stride, useConv)])
+def Residual(numIn, numOut, *arg, stride=1, net_type="preact", useConv=False, **kw):
+    con = ConcatTable(
+        [
+            convBlock(numIn, numOut, stride, net_type),
+            skipLayer(numIn, numOut, stride, useConv),
+        ]
+    )
     cadd = CaddTable(True)
     return nn.Sequential(con, cadd)
 
 
 def convBlock(numIn, numOut, stride, net_type):
     s_list = []
-    if net_type != 'no_preact':
+    if net_type != "no_preact":
         s_list.append(nn.BatchNorm2d(numIn))
         s_list.append(nn.ReLU(True))
 
@@ -47,8 +51,4 @@ def skipLayer(numIn, numOut, stride, useConv):
         conv1 = nn.Conv2d(numIn, numOut, kernel_size=1, stride=stride)
         if opt.init:
             nn.init.xavier_normal(conv1.weight, gain=math.sqrt(1 / 2))
-        return nn.Sequential(
-            nn.BatchNorm2d(numIn),
-            nn.ReLU(True),
-            conv1
-        )
+        return nn.Sequential(nn.BatchNorm2d(numIn), nn.ReLU(True), conv1)
