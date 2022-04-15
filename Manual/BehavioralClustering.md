@@ -19,7 +19,8 @@ The main process of hierarchical clustering list below can be found in 	`./fft_m
     <img src="media/main_ui/behavior.png", width="500" alt><br>
     AlphaTracker GUI behavior clustering page
 </div>
-Please visit our video tutorial for behavior clustering at YouTube or BiliBili.
+
+Please visit our video tutorial for behavior clustering at [YouTube](https://youtu.be/DOL0ImEZK1E).
 
 
 ## Or run by command line

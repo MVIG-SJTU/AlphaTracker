@@ -5,7 +5,8 @@
     <img src="media/main_ui/track.png", width="500" alt><br>
     AlphaTracker GUI tracking page
 </div>
-Please visit our video tutorial for tracking at YouTube or BiliBili.
+
+Please visit our video tutorial for tracking at [YouTube](https://youtu.be/t2skgohliAc).
 
 <br>
 
@@ -48,7 +49,8 @@ We have provided pretrained models. However, if you want to train your own model
     <img src="media/main_ui/train.png", width="500" alt><br>
     AlphaTracker GUI training page
 </div>
-Please visit our video tutorial for training at YouTube or BiliBili.
+
+Please visit our video tutorial for training at [YouTube](https://youtu.be/txjrZiVS4Eo).
 
 
 ## Or by command line
