@@ -12,6 +12,8 @@ Pre-installed Python3 is required since this package includes Python scripts.
     AlphaTracker GUI open WebUI page
 </div>
 
+Please visit our video tutorial for WebUI at [YouTube](https://youtu.be/9Ksb04s8mm4).
+
 ### Or by command line
 Change your working directory to [UI/](../UI) by running `cd ./UI`. Then run `python server.py` in command window in the unzipped folder. 
 
