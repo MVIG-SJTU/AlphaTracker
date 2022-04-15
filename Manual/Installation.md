@@ -19,7 +19,7 @@ Please make sure that your NVIDIA driver version  >= 450. You can download Nvidi
     <img src="media/main_ui/install2.png", width="500" alt><br>
     AlphaTracker GUI and installation page
 </div>
-Please visit our video tutorial for installation at YouTube or BiliBili.
+DOwnload our GUI app at [here](https://github.com/MVIG-SJTU/AlphaTracker/releases/download/v1.0.0/main_ui). Please visit our video tutorial for installation at YouTube or BiliBili.
 
 ### Or by command line
 In your command window, locate the terminal prompt. Open this application. Then, find the folder that contains the `AlphaTracker` repository that you just downloaded. Then inside the terminal window, change the directory as follows: `cd /path/to/AlphaTracker`. 
