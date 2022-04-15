@@ -16,7 +16,8 @@ json_file_list = [
     "./data/sample_annotated_data/demo/train9.json"
 ]  # list of paths to the json files that contain labels of the images for training
 num_mouse = [2]  # the number of mouse in the images in each image folder path
-exp_name = "demo"  # the name of the experiment
+exp_name = "demo"  # the name of the training experiment
+exp_name_track = "demo"  # the exp name of the tracking experiment, denoting which trained results to use
 num_pose = 4  # number of the pose that is labeled, remember to change self.nJoints in train_sppe/src/utils/dataset/coco.py
 pose_pair = [[0, 1], [0, 2], [0, 3]]
 train_val_split = (
