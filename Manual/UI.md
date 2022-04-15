@@ -4,16 +4,26 @@ This interface is browser-based. We recommend using `Google Chrome` as the brows
 
 Pre-installed Python3 is required since this package includes Python scripts.
 
-### Running
+## Running
+### By GUI (recommended for non-cs users)
+<div align="center">
+    <img src="media/main_ui/main_result.png", width="500" alt><br>
+    <img src="media/main_ui/vis_results.png", width="500" alt><br>
+    AlphaTracker GUI open WebUI page
+</div>
 
-Change your working directory to [UI/](../UI) by running `cd ./UI`. Then run `python server.py` in command window in the unzipped folder. A window should appear in the user's browser. Then click `html/`. From there, select a program you want to run. `cluster.html` is the Cluster UI and `curate.html` is the Tracking UI.
-
-<img src="media/html.jpg" width = "300" /><img src="media/window.png" width = "400" />
+### Or by command line
+Change your working directory to [UI/](../UI) by running `cd ./UI`. Then run `python server.py` in command window in the unzipped folder. 
 
 <br>
     
 
 ## Tracking UI
+
+A window should appear in the user's browser. Then click `html/`. From there, select a program you want to run. `cluster.html` is the Cluster UI and `curate.html` is the Tracking UI.
+
+<img src="media/html.jpg" width = "400" /><br><img src="media/window.png" width = "400" />
+
 
 
 ### Import data
