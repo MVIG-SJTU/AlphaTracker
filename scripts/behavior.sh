@@ -15,6 +15,5 @@ bash run_all.sh
 
 python fft_main_sep_twoMiceInteract.py
 
-
 echo behavior over
 

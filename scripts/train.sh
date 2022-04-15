@@ -11,7 +11,7 @@ conda activate alphatracker
 
 cd ./Tracking/AlphaTracker/
 
-python train.py
+python train.py ui
 
 
 echo train over
