@@ -11,7 +11,7 @@ conda activate alphatracker
 
 cd ./Tracking/AlphaTracker/
 
-python track.py
+python track.py ui
 
 
 echo track over

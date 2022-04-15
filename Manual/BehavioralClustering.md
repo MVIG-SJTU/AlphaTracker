@@ -13,8 +13,16 @@ The main process of hierarchical clustering list below can be found in 	`./fft_m
 
 <br>
 
-## Run clustering algorithm
+## Run By GUI (recommended for non-cs users)
+<div align="center">
+    <img src="media/main_ui/main_behavior.png", width="500" alt><br>
+    <img src="media/main_ui/behavior.png", width="500" alt><br>
+    AlphaTracker GUI behavior clustering page
+</div>
+Please visit our video tutorial for behavior clustering at YouTube or BiliBili.
 
+
+## Or run by command line
 ### Step 1. Configuration
 
 Set the Behavioral Clustering folder as the current directory.

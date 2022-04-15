@@ -5,26 +5,47 @@ import subprocess
 from importlib import reload
 
 import data_utils
-from setting import (
-    AlphaTracker_root,
-    image_root_list,
-    json_file_list,
-    num_mouse,
-    exp_name,
-    num_pose,
-    train_val_split,
-    image_suffix,
-    gpu_id,
-    sppe_lr,
-    sppe_epoch,
-    yolo_lr,
-    yolo_iter,
-    sppe_pretrain,
-    yolo_pretrain,
-    yolo_batchSize,
-    sppe_batchSize,
-)
 
+if len(sys.argv)==1:
+    from setting import (
+        AlphaTracker_root,
+        image_root_list,
+        json_file_list,
+        num_mouse,
+        exp_name,
+        num_pose,
+        train_val_split,
+        image_suffix,
+        gpu_id,
+        sppe_lr,
+        sppe_epoch,
+        yolo_lr,
+        yolo_iter,
+        sppe_pretrain,
+        yolo_pretrain,
+        yolo_batchSize,
+        sppe_batchSize,
+    )
+elif len(sys.argv)==2 and sys.argv[1]=='ui':
+    from setting_ui import (
+        AlphaTracker_root,
+        image_root_list,
+        json_file_list,
+        num_mouse,
+        exp_name,
+        num_pose,
+        train_val_split,
+        image_suffix,
+        gpu_id,
+        sppe_lr,
+        sppe_epoch,
+        yolo_lr,
+        yolo_iter,
+        sppe_pretrain,
+        yolo_pretrain,
+        yolo_batchSize,
+        sppe_batchSize,
+    )
 
 class cd:
     """Context manager for changing the current working directory"""

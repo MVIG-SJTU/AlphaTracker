@@ -18,7 +18,8 @@ if sys.version_info < (3, 7, 5):
 
 if __name__ == "__main__":
     port = 8000
-    with socketserver.TCPServer(("", port), Handler) as httpd:
+    with socketserver.TCPServer(("", port), Handler, False) as httpd:
+        httpd.allow_reuse_address = True
         print("Serving at: http://127.0.0.1:{}".format(port))
         webbrowser.open_new("http://127.0.0.1:{}".format(port))
         httpd.serve_forever()
