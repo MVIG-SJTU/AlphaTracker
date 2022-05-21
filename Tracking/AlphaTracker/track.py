@@ -108,15 +108,15 @@ cap.release()
 
 print("getting demo image:")
 os.system("cd {}".format(AlphaTracker_root))
-demo_cmd = "CUDA_VISIBLE_DEVICES='{}' python3 demo.py \\\n \
---nClasses {} \\\n \
---indir {} \\\n \
---outdir {}  \\\n \
---yolo_model_path {}/backup/{}/yolov3-mice_final.weights \\\n \
---yolo_model_cfg {}/cfg/yolov3-mice.cfg \\\n \
---pose_model_path {}exp/coco/{}/model_{}.pkl \\\n \
+os.system('set CUDA_VISIBLE_DEVICES={}'.format(gpu_id))
+demo_cmd = "python demo.py \
+--nClasses {} \
+--indir {} \
+--outdir {} \
+--yolo_model_path {}/backup/{}/yolov3-mice_final.weights \
+--yolo_model_cfg {}/cfg/yolov3-mice.cfg \
+--pose_model_path {}exp/coco/{}/model_{}.pkl \
 --use_boxGT 0".format(
-    gpu_id,
     num_pose,
     video_image_save_path,
     result_folder,
@@ -134,14 +134,14 @@ os.system(demo_cmd)
 if max_pid_id_setting == 1:
     print("\nThere is only one mouse, no need to do the tracking")
 else:
-    track_cmd = "python ./PoseFlow/tracker-general-fixNum-newSelect-noOrb.py \\\n \
-        --imgdir {} \\\n \
-        --in_json {}/alphapose-results.json \\\n \
-        --out_json {}/alphapose-results-forvis-tracked.json \\\n \
-        --visdir {}/pose_track_vis/  --vis {}\\\n \
+    track_cmd = "python ./PoseFlow/tracker-general-fixNum-newSelect-noOrb.py \
+        --imgdir {} \
+        --in_json {}/alphapose-results.json \
+        --out_json {}/alphapose-results-forvis-tracked.json \
+        --visdir {}/pose_track_vis/  --vis {} \
         --image_format {} \
-        --max_pid_id_setting {} --match {}  --weights {} \\\n \
-        --out_video_path {}/{}_{}_{}_{}.mp4  \
+        --max_pid_id_setting {} --match {}  --weights {} \
+        --out_video_path {}/{}_{}_{}_{}.mp4 \
         ".format(
         video_image_save_path,
         result_folder,
