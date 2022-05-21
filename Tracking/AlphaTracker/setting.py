@@ -1,5 +1,5 @@
 import os
-
+import numpy as np
 # general setting
 gpu_id = 0  # the id of gpu that will be used
 
@@ -16,7 +16,8 @@ json_file_list = [
     "./data/sample_annotated_data/demo/train9.json"
 ]  # list of paths to the json files that contain labels of the images for training
 num_mouse = [2]  # the number of mouse in the images in each image folder path
-exp_name = "demo"  # the name of the experiment
+exp_name = "demo"  # the name of the training experiment
+exp_name_track = "demo"  # the exp name of the tracking experiment, denoting which trained results to use
 num_pose = 4  # number of the pose that is labeled, remember to change self.nJoints in train_sppe/src/utils/dataset/coco.py
 pose_pair = [[0, 1], [0, 2], [0, 3]]
 train_val_split = (
@@ -45,15 +46,13 @@ yolo_batchSize = 4
 # video_full_path is the path to the video that will be tracked
 video_full_path = "./data/demo.mp4"
 video_paths = [
-    "./data/demo.mp4",
-]  # make sure video names are different from each other
-start_frame = 0  # id of the start frame of the video
-end_frame = 9737  # id of the last frame of the video
-max_pid_id_setting = 2  # number of mice in the video
-result_folder = "./track_result/"  # path to the folder used to save the result
-remove_oriFrame = (
-    False  # whether to remove the original frame that generated from video
-)
+  './data/demo.mp4',
+  ]   # make sure video names are different from each other
+start_frame = 0   # id of the start frame of the video
+end_frame = 300   # id of the last frame of the video
+max_pid_id_setting = 2    # number of mice in the video
+result_folder = './track_result/'   # path to the folder used to save the result
+remove_oriFrame = False   # whether to remove the original frame that generated from video
 vis_track_result = 1
 
 # weights and match are parameter of tracking algorithm

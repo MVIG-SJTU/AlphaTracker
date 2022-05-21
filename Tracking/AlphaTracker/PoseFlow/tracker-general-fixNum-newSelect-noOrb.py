@@ -36,8 +36,6 @@ import cv2
 from functools import cmp_to_key
 import time
 
-# from ..setting import pose_pair
-
 
 def display_pose_cv2(imgdir, visdir, tracked, cmap, args):
 

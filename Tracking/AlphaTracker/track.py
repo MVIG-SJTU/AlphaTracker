@@ -1,26 +1,43 @@
 import cv2
 import os
 import time
-
+import sys
 from tqdm import tqdm
 
-from setting import (
-    AlphaTracker_root,
-    exp_name,
-    num_pose,
-    gpu_id,
-    sppe_epoch,
-    video_full_path,
-    start_frame,
-    end_frame,
-    max_pid_id_setting,
-    result_folder,
-    weights,
-    match,
-    remove_oriFrame,
-    vis_track_result,
-)
-
+if len(sys.argv)==1:
+    from setting import (
+        AlphaTracker_root,
+        exp_name_track,
+        num_pose,
+        gpu_id,
+        sppe_epoch,
+        video_full_path,
+        start_frame,
+        end_frame,
+        max_pid_id_setting,
+        result_folder,
+        weights,
+        match,
+        remove_oriFrame,
+        vis_track_result,
+    )
+elif len(sys.argv)==2 and sys.argv[1]=='ui':
+    from setting_ui import (
+        AlphaTracker_root,
+        exp_name_track,
+        num_pose,
+        gpu_id,
+        sppe_epoch,
+        video_full_path,
+        start_frame,
+        end_frame,
+        max_pid_id_setting,
+        result_folder,
+        weights,
+        match,
+        remove_oriFrame,
+        vis_track_result,
+    )
 
 # demo video setting
 video_image_save_path_base = result_folder + "/oriFrameFromVideo/"
@@ -34,20 +51,20 @@ sppe_root = AlphaTracker_root + "/train_sppe/"
 
 # automatic setting
 # general data setting
-ln_image_dir = AlphaTracker_root + "/data/" + exp_name + "/color_image/"
+ln_image_dir = AlphaTracker_root + "/data/" + exp_name_track + "/color_image/"
 
 # sppe data setting
-train_h5_file = sppe_root + "/data/" + exp_name + "/data_newLabeled_01_train.h5"
-val_h5_file = sppe_root + "/data/" + exp_name + "/data_newLabeled_01_val.h5"
+train_h5_file = sppe_root + "/data/" + exp_name_track + "/data_newLabeled_01_train.h5"
+val_h5_file = sppe_root + "/data/" + exp_name_track + "/data_newLabeled_01_val.h5"
 
 # yolo data setting
-color_img_prefix = "data/" + exp_name + "/color/"
-file_list_root = "data/" + exp_name + "/"
+color_img_prefix = "data/" + exp_name_track + "/color/"
+file_list_root = "data/" + exp_name_track + "/"
 yolo_image_annot_root = darknet_root + "/" + color_img_prefix
 
 train_list_file = darknet_root + "/" + file_list_root + "/" + "train.txt"
 val_list_file = darknet_root + "/" + file_list_root + "/" + "valid.txt"
-valid_image_root = darknet_root + "/data/" + exp_name + " /valid_image/"
+valid_image_root = darknet_root + "/data/" + exp_name_track + " /valid_image/"
 
 if not os.path.exists(result_folder):
     os.makedirs(result_folder)
@@ -90,24 +107,24 @@ cap.release()
 
 
 print("getting demo image:")
-os.system("set CUDA_VISIBLE_DEVICES={}".format(gpu_id))
 os.system("cd {}".format(AlphaTracker_root))
-demo_cmd = "python demo.py \
---nClasses {} \
---indir {} \
---outdir {} \
---yolo_model_path {}/backup/{}/yolov3-mice_final.weights \
---yolo_model_cfg {}/cfg/yolov3-mice.cfg \
---pose_model_path {}exp/coco/{}/model_{}.pkl \
+demo_cmd = "CUDA_VISIBLE_DEVICES='{}' python3 demo.py \\\n \
+--nClasses {} \\\n \
+--indir {} \\\n \
+--outdir {}  \\\n \
+--yolo_model_path {}/backup/{}/yolov3-mice_final.weights \\\n \
+--yolo_model_cfg {}/cfg/yolov3-mice.cfg \\\n \
+--pose_model_path {}exp/coco/{}/model_{}.pkl \\\n \
 --use_boxGT 0".format(
+    gpu_id,
     num_pose,
     video_image_save_path,
     result_folder,
     darknet_root,
-    exp_name,
+    exp_name_track,
     darknet_root,
     sppe_root,
-    exp_name,
+    exp_name_track,
     sppe_epoch,
 )
 print(demo_cmd)
@@ -117,14 +134,14 @@ os.system(demo_cmd)
 if max_pid_id_setting == 1:
     print("\nThere is only one mouse, no need to do the tracking")
 else:
-    track_cmd = "python ./PoseFlow/tracker-general-fixNum-newSelect-noOrb.py  \
-        --imgdir {} \
-        --in_json {}/alphapose-results.json \
-        --out_json {}/alphapose-results-forvis-tracked.json \
-        --visdir {}/pose_track_vis/  --vis {} \
+    track_cmd = "python ./PoseFlow/tracker-general-fixNum-newSelect-noOrb.py \\\n \
+        --imgdir {} \\\n \
+        --in_json {}/alphapose-results.json \\\n \
+        --out_json {}/alphapose-results-forvis-tracked.json \\\n \
+        --visdir {}/pose_track_vis/  --vis {}\\\n \
         --image_format {} \
-        --max_pid_id_setting {} --match {}  --weights {} \
-        --out_video_path {}/{}_{}_{}_{}.mp4 \
+        --max_pid_id_setting {} --match {}  --weights {} \\\n \
+        --out_video_path {}/{}_{}_{}_{}.mp4  \
         ".format(
         video_image_save_path,
         result_folder,
@@ -136,7 +153,7 @@ else:
         match,
         weights,
         result_folder,
-        exp_name,
+        exp_name_track,
         max_pid_id_setting,
         match,
         weights.replace(" ", ""),
