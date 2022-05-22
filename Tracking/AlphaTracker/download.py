@@ -24,6 +24,3 @@ gdd.download_file_from_google_drive(file_id=scipy_data,dest_path='../../UI/data/
 # The following command do an unzip operation. You can also unzip the files manually.
 with zipfile.ZipFile('./data/sample_annotated_data.zip', 'r') as zip_ref:
     zip_ref.extractall('./data/sample_annotated_data/')
-
-with zipfile.ZipFile("./data/sample_annotated_data.zip", "r") as zip_ref:
-    zip_ref.extractall("./data/sample_annotated_data/")
