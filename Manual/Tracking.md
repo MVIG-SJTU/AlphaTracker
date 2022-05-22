@@ -40,7 +40,7 @@ can potentially lead to better performance.
 <br>
 
 
-# Training (Not Sup)
+# Training
 
 ### **Note:** 
 
