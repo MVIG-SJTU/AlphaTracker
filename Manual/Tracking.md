@@ -44,7 +44,7 @@ can potentially lead to better performance.
 
 ### **Note:** 
 
-We do not support training detector on Windows yet. Please use our demo model weights or you can refer to Linux version.
+We do not support training AlphaTracker on Windows yet. Please use our demo model weights or you can refer to Linux version.
 
 ### Demo data for training
 
