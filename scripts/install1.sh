@@ -2,8 +2,10 @@
 nvidia-smi
 echo '====>Checked nvidia driver installation.'
 echo 
-. ~/anaconda3/etc/profile.d/conda.sh
+conda
 echo '====>Checked anaconda installation.'
+git
+echo '====>Checked git installation.'
 
 
 

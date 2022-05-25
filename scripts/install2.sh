@@ -1,6 +1,12 @@
 #!/bin/bash
 . ~/anaconda3/etc/profile.d/conda.sh
 
+conda_path=$(which _conda)
+sub_path="/etc/profile.d/conda.sh"
+conda_real=". "${conda_path/_conda/$sub_path}
+echo $conda_real
+eval $conda_real
+
 find_in_conda_env(){
     conda env list | grep "${@}" >/dev/null 2>/dev/null
 }
@@ -11,7 +17,6 @@ conda clean -i
 if find_in_conda_env ".*alphatracker.*" ; then
     conda activate alphatracker
 else
-    conda upgrade -n base -c defaults --override-channels conda
     conda create -n alphatracker python=3.8 -y
     conda activate alphatracker
 fi;

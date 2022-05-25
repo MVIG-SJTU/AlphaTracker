@@ -1,8 +1,4 @@
 #!/bin/bash
-. ~/anaconda3/etc/profile.d/conda.sh
 
-conda activate alphatracker
-
-export PATH=/usr/local/cuda/bin/:$PATH
-export LD_LIBRARY_PATH=/usr/local/cuda/lib64/:$LD_LIBRARY_PATH
+echo "Do not need to install yolo for Windows currently, simply skip this step."
 
