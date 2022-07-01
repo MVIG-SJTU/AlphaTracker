@@ -113,7 +113,7 @@ if __name__ == "__main__":
         tests_require=["pytest"],
         install_requires=[
             'numpy', 'scipy', 'opencv-python', 'matplotlib',
-            'tqdm', 'googledrivedownloader', 'h5py', 'pandas==1.4.2',
+            'tqdm', 'gdown', 'h5py', 'pandas==1.4.2',
             'nibabel', 'pycocotools', 'tensorboardx', 'munkres',
             'visdom', 'scikit-learn', 'seaborn', 'umap', 'requests'
         ],
