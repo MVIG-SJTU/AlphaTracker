@@ -1,7 +1,5 @@
-from google_drive_downloader import GoogleDriveDownloader as gdd
 import zipfile
-
-
+import gdown
 
 # you can add https://drive.google.com/file/d/ in front of the following file_id and download them manually through web browser.
 sppe_pretrain_weight = '1OPORTWB2cwd5YTVBX-NE8fsauZJWsrtW'
@@ -12,14 +10,33 @@ demo_data = '1N0JjazqW6JmBheLrn6RoDTSRXSPp1t4K'
 sample_training_data='15dR-vVCEsg2z7mEVzJOF9YDW6YioEU3N'
 scipy_data = '1c6vJQbAm_TcGyTCr1ah-x_R-iIYmT9TM'
 
-# Remember that after your download, place the files to their corresponding destination folder.
-gdd.download_file_from_google_drive(file_id=sppe_pretrain_weight,dest_path='./models/sppe/duc_se.pth')
-gdd.download_file_from_google_drive(file_id=yolo_pretrain_weight,dest_path='./train_yolo/darknet/darknet53.conv.74')
-gdd.download_file_from_google_drive(file_id=sppe_trained_weight,dest_path='./train_sppe/exp/coco/demo/model_10.pkl')
-gdd.download_file_from_google_drive(file_id=yolo_trained_weight,dest_path='./train_yolo/darknet/backup/demo/yolov3-mice_final.weights')
-gdd.download_file_from_google_drive(file_id=demo_data,dest_path='./data/demo.mp4')
-gdd.download_file_from_google_drive(file_id=sample_training_data,dest_path='./data/sample_annotated_data.zip')
-gdd.download_file_from_google_drive(file_id=scipy_data,dest_path='../../UI/data/scipy.data')
+url = 'https://drive.google.com/uc?id='+ sppe_pretrain_weight
+output = './models/sppe/duc_se.pth'
+gdown.download(url, output, quiet=False)
+
+url = 'https://drive.google.com/uc?id='+ yolo_pretrain_weight
+output = './train_yolo/darknet/darknet53.conv.74'
+gdown.download(url, output, quiet=False)
+
+url = 'https://drive.google.com/uc?id='+ sppe_trained_weight
+output = './train_sppe/exp/coco/demo/model_10.pkl'
+gdown.download(url, output, quiet=False)
+
+url = 'https://drive.google.com/uc?id='+ yolo_trained_weight
+output = './train_yolo/darknet/backup/demo/yolov3-mice_final.weights'
+gdown.download(url, output, quiet=False)
+                                    
+url = 'https://drive.google.com/uc?id='+ demo_data
+output = './data/demo.mp4'
+gdown.download(url, output, quiet=False)   
+
+url = 'https://drive.google.com/uc?id='+ sample_training_data
+output = './data/sample_annotated_data.zip'
+gdown.download(url, output, quiet=False)
+                                    
+url = 'https://drive.google.com/uc?id='+ scipy_data
+output = '../../UI/data/scipy.data'
+gdown.download(url, output, quiet=False)
 
 # The following command do an unzip operation. You can also unzip the files manually.
 with zipfile.ZipFile('./data/sample_annotated_data.zip', 'r') as zip_ref:
