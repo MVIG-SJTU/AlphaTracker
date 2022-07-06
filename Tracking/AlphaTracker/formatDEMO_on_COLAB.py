@@ -71,8 +71,8 @@ def download_data():
     # The following command do an unzip operation. You can also unzip the files manually.
     path_to_zip = "/content/drive/My Drive/data.zip"
     save_dir = "/content/drive/My Drive"
-    with zipfile.ZipFile(path_to_zip, "r") as zip_file_rep:
-        zip_file_rep.extractall(save_dir)
+    zip_file_rep = zipfile.ZipFile(path_to_zip, "r")
+    zip_file_rep.extractall(save_dir)
 
     formatCOLAB.convert(
         ["/content/drive/My Drive/demo"],
