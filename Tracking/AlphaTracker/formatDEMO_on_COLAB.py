@@ -1,7 +1,7 @@
 import os
 import shutil
 import json
-from google_drive_downloader import GoogleDriveDownloader as gdd
+import gdown
 import formatCOLAB
 
 
@@ -21,17 +21,27 @@ def download_models():
             "/content/drive/My Drive/AlphaTracker/Tracking/AlphaTracker/yolov3-mice_final.weights"
         )
 
-    sppe_id = "1_BwtYySpX9uWDgdwqw0UEppyMYYv1gkJ"
-    yolo_id = "13zXkuZ4dNm3ZOwstr1sSWKOOzJ19XZpN"
+    # you can add https://drive.google.com/file/d/ in front of the following file_id and download them manually through web browser.
+    sppe_pretrain_weight = '1OPORTWB2cwd5YTVBX-NE8fsauZJWsrtW'
+    yolo_pretrain_weight = '1g8uJjK7EOlqrUCmjZTtCegwnNsBig6zn'
+    sppe_trained_weight = '1_BwtYySpX9uWDgdwqw0UEppyMYYv1gkJ'
+    yolo_trained_weight = '13zXkuZ4dNm3ZOwstr1sSWKOOzJ19XZpN'
 
-    gdd.download_file_from_google_drive(
-        file_id=sppe_id,
-        dest_path="/content/drive/My Drive/AlphaTracker/Tracking/AlphaTracker/model10.pkl",
-    )
-    gdd.download_file_from_google_drive(
-        file_id=yolo_id,
-        dest_path="/content/drive/My Drive/AlphaTracker/Tracking/AlphaTracker/yolov3-mice_final.weights",
-    )
+    url = 'https://drive.google.com/uc?id='+ sppe_pretrain_weight
+    output = '/content/drive/My Drive/AlphaTracker/Tracking/AlphaTracker/duc_se.pth'
+    gdown.download(url, output, quiet=False)
+
+    url = 'https://drive.google.com/uc?id='+ yolo_pretrain_weight
+    output = '/content/drive/My Drive/AlphaTracker/Tracking/AlphaTracker/darknet53.conv.74'
+    gdown.download(url, output, quiet=False)
+
+    url = 'https://drive.google.com/uc?id='+ sppe_trained_weight
+    output = '/content/drive/My Drive/AlphaTracker/Tracking/AlphaTracker/model_10.pkl'
+    gdown.download(url, output, quiet=False)
+
+    url = 'https://drive.google.com/uc?id='+ yolo_trained_weight
+    output = '/content/drive/My Drive/AlphaTracker/Tracking/AlphaTracker/yolov3-mice_final.weights'
+    gdown.download(url, output, quiet=False)
 
 
 def download_data():
@@ -45,18 +55,19 @@ def download_data():
     if os.path.exists("/content/drive/My Drive/TRAINING_DATA"):
         shutil.rmtree("/content/drive/My Drive/TRAINING_DATA")
 
-    data_zip_id = "15dR-vVCEsg2z7mEVzJOF9YDW6YioEU3N"
-    demo_vid_id = "1N0JjazqW6JmBheLrn6RoDTSRXSPp1t4K"
+    # you can add https://drive.google.com/file/d/ in front of the following file_id and download them manually through web browser.
+    demo_data = '1N0JjazqW6JmBheLrn6RoDTSRXSPp1t4K'
+    sample_training_data='15dR-vVCEsg2z7mEVzJOF9YDW6YioEU3N'
+    
+    url = 'https://drive.google.com/uc?id='+ demo_data
+    output = '/content/drive/My Drive/demo_video.mp4'
+    gdown.download(url, output, quiet=False)   
 
-    gdd.download_file_from_google_drive(
-        file_id=data_zip_id, dest_path="/content/drive/My Drive/data.zip"
-    )
-    gdd.download_file_from_google_drive(
-        file_id=demo_vid_id, dest_path="/content/drive/My Drive/demo_video.mp4"
-    )
+    url = 'https://drive.google.com/uc?id='+ sample_training_data
+    output = '/content/drive/My Drive/data.zip'
+    gdown.download(url, output, quiet=False)
 
-    import zipfile
-
+    # The following command do an unzip operation. You can also unzip the files manually.
     path_to_zip = "/content/drive/My Drive/data.zip"
     save_dir = "/content/drive/My Drive"
     with zipfile.ZipFile(path_to_zip, "r") as zip_file_rep:
