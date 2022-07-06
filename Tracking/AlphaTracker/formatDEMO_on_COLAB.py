@@ -68,19 +68,6 @@ def download_data():
     output = '/content/drive/My Drive/data.zip'
     gdown.download(url, output, quiet=False)
 
-    # The following command do an unzip operation. You can also unzip the files manually.
-    path_to_zip = "/content/drive/My Drive/data.zip"
-    save_dir = "/content/drive/My Drive"
-    zip_file_rep = zipfile.ZipFile(path_to_zip, "r")
-    zip_file_rep.extractall(save_dir)
-
-    formatCOLAB.convert(
-        ["/content/drive/My Drive/demo"],
-        ["/content/drive/My Drive/demo/train9.json"],
-        "jpg",
-    )
-    shutil.rmtree("/content/drive/My Drive/demo")
-
 
 def make_settingPY():
 
