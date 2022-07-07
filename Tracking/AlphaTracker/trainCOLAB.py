@@ -46,20 +46,19 @@ class cd:
     def __exit__(self, etype, value, traceback):
         os.chdir(self.savedPath)
 
+import gdown 
 
-from google_drive_downloader import GoogleDriveDownloader as gdd
+sppe_pretrain_weight = '1OPORTWB2cwd5YTVBX-NE8fsauZJWsrtW'
+yolo_pretrain_weight = '1g8uJjK7EOlqrUCmjZTtCegwnNsBig6zn'
 
-sppe_id = "1OPORTWB2cwd5YTVBX-NE8fsauZJWsrtW"
-yolo_id = "1g8uJjK7EOlqrUCmjZTtCegwnNsBig6zn"
+url = 'https://drive.google.com/uc?id='+ sppe_pretrain_weight
+output = './models/sppe/duc_se.pth'
+gdown.download(url, output, quiet=False)
 
-gdd.download_file_from_google_drive(
-    file_id=sppe_id, dest_path=AlphaTracker_root + "/models/sppe/duc_se.pth"
-)
+url = 'https://drive.google.com/uc?id='+ yolo_pretrain_weight
+output = './train_yolo/darknet/darknet53.conv.74'
+gdown.download(url, output, quiet=False)
 
-gdd.download_file_from_google_drive(
-    file_id=yolo_id,
-    dest_path=AlphaTracker_root + "/train_yolo/darknet/darknet53.conv.74",
-)
 
 ###################################
 ###    code path setting        ###
