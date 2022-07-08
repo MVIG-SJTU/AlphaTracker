@@ -69,6 +69,7 @@ def make_settingPY(
     max_pid_setting,
     visualize,
     video_path,
+    exp_name_track = None
 ):
 
     new_video_paths = [
@@ -86,6 +87,10 @@ def make_settingPY(
         f.write("num_mouse={}\n".format(num_mouse))
         f.write("num_pose={}\n".format(num_pose))
         f.write("exp_name='{}'\n".format(exp_name))
+        if exp_name_track is None:
+            f.write("exp_name_track='{}'\n".format(exp_name))
+        else:
+            f.write("exp_name_track='{}'\n".format(exp_name_track))
         f.write("pose_pair={}\n".format(pose_pair))
         f.write("train_val_split={}\n".format(train_val_split))
         f.write("image_suffix='{}'\n".format(image_suffix))
