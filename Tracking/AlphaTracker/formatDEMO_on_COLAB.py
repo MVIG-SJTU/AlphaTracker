@@ -80,6 +80,7 @@ def make_settingPY():
         f.write("num_mouse=[2]\n")
         f.write("num_pose=4\n")
         f.write("exp_name='DEMO'\n")
+        f.write("exp_name_track='DEMO'\n")
         f.write("pose_pair=[[0,1],[0,2],[0,3]]\n")
         f.write("train_val_split=0.90\n")
         f.write("image_suffix='jpg'\n")
