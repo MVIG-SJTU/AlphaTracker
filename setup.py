@@ -112,11 +112,17 @@ if __name__ == "__main__":
         install_requires=[
             'numpy', 'scipy', 'opencv-python', 'matplotlib',
             'tqdm', 'gdown', 'h5py', 'pandas==1.4.2',
-            'nibabel', 'pycocotools', 'tensorboardx', 'munkres',
+            'nibabel', 'tensorboardx', 'munkres',
             'visdom', 'scikit-learn', 'seaborn', 'umap', 'requests'
         ],
         zip_safe=False)
-    
+    if platform.system() == 'Windows':
+        print("\nInstall third-party pycocotools for Windows...")
+        cmd = 'python -m pip install git+https://github.com/philferriere/cocoapi.git#subdirectory=PythonAPI'
+        os.system(cmd)
+    else:
+        cmd = 'python -m pip install pycocotools'
+        os.system(cmd)
     print('\n Install `torchsample` ...')
     cmd = 'python -m pip install ./torchsample'
     os.system(cmd)
