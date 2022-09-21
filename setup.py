@@ -81,10 +81,8 @@ def get_version():
 
 
 if __name__ == "__main__":
-    write_version_py()
     setup(
         name="alphatracker",
-        version=get_version(),
         description="Code for AlphaTracker",
         long_description=readme(),
         keywords="multi-animal tracking, pose estimation, unsupervised behavioral clustering",
