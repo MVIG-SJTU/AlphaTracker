@@ -1,12 +1,12 @@
 # Installation
 
-## Download or Clone
-
-Download the AlphaTracker repository and rename the main folder from `AlphaTracker-main` to `Alphatracker`. Or you can use `git clone` to clone AlphaTracker repository.
-
 ## Git Bash(only Windows users need it)
 
 Visit the Git Bash [download page](https://git-scm.com/downloads/win), choose the preferred version of software and download it. Double click the downloaded .exe file and install it. A video demonstration for installing this and the following drivers for Windows is available [here](https://youtu.be/B5sEBW15r0g).
+
+## Download or Clone
+
+Use `git clone` to clone AlphaTracker repository.
 
 ## Install Anaconda
 
